@@ -1,0 +1,43 @@
+import type { Paciente } from "../types/paciente";
+
+export const MOCK_PACIENTES: Paciente[] = [
+  {
+    cpf: "123.456.789-00",
+    nome: "Ana Carolina Souza",
+    telefone: "(83) 98888-1122",
+    endereco: "Rua das Acácias, 120 - João Pessoa/PB",
+    sexo: "FEMININO",
+    email: "ana.souza@exemplo.com",
+    dataNasc: "1992-04-18",
+    status: "ATIVO",
+    prioridade: "MEDIA",
+    observacao: "Encaminhada pela Dra. Marina.",
+    criadoEm: "2026-09-01",
+  },
+  {
+    cpf: "987.654.321-00",
+    nome: "Bruno Tavares de Lima",
+    telefone: "(83) 97777-3344",
+    endereco: "Av. Epitácio Pessoa, 800 - João Pessoa/PB",
+    sexo: "MASCULINO",
+    email: "bruno.lima@exemplo.com",
+    dataNasc: "1988-11-02",
+    status: "ATIVO",
+    prioridade: "ALTA",
+    observacao: "Histórico de crises recorrentes.",
+    criadoEm: "2026-08-22",
+  },
+  {
+    cpf: "111.222.333-44",
+    nome: "Carla Menezes Ribeiro",
+    telefone: "(83) 96666-5566",
+    endereco: "Rua do Sol, 45 - Campina Grande/PB",
+    sexo: "FEMININO",
+    email: "carla.ribeiro@exemplo.com",
+    dataNasc: "2000-06-30",
+    status: "INATIVO",
+    prioridade: "BAIXA",
+    observacao: "",
+    criadoEm: "2026-07-15",
+  },
+];

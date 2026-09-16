@@ -1,0 +1,42 @@
+import { ClipboardCheck, Calendar, Stethoscope, ShieldCheck } from "lucide-react";
+import { PagePlaceholder } from "../../../components/PagePlaceholder/PagePlaceholder";
+
+export function TriagemPage() {
+  return (
+    <PagePlaceholder
+      title="Triagem"
+      subtitle="Acolhimento inicial e priorização dos pacientes."
+      icon={<ClipboardCheck size={22} strokeWidth={2} />}
+    />
+  );
+}
+
+export function AgendaPage() {
+  return (
+    <PagePlaceholder
+      title="Agenda"
+      subtitle="Controle de fluxo da agenda clínica."
+      icon={<Calendar size={22} strokeWidth={2} />}
+    />
+  );
+}
+
+export function ProfissionaisPage() {
+  return (
+    <PagePlaceholder
+      title="Profissionais"
+      subtitle="Cadastro e gestão de psicólogos e psiquiatras."
+      icon={<Stethoscope size={22} strokeWidth={2} />}
+    />
+  );
+}
+
+export function AuditoriaPage() {
+  return (
+    <PagePlaceholder
+      title="Auditoria LGPD"
+      subtitle="Consulta ao log de exclusões de dados sensíveis."
+      icon={<ShieldCheck size={22} strokeWidth={2} />}
+    />
+  );
+}
