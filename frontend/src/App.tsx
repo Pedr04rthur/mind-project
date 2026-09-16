@@ -7,6 +7,7 @@ import { Perfil } from "./pages/Perfil/Perfil";
 import { PatientLayout } from "./layouts/PatientLayout/PatientLayout";
 import { RecepcaoLayout } from "./layouts/RecepcaoLayout/RecepcaoLayout";
 import { PacientesList } from "./pages/Recepcao/Pacientes/PacientesList";
+import { PacienteDetail } from "./pages/Recepcao/Pacientes/PacienteDetail";
 import {
   TriagemPage,
   AgendaPage,
@@ -31,6 +32,7 @@ function App() {
         <Route path="/recepcao" element={<RecepcaoLayout />}>
           <Route index element={<Navigate to="/recepcao/pacientes" replace />} />
           <Route path="pacientes" element={<PacientesList />} />
+          <Route path="pacientes/:cpf" element={<PacienteDetail />} />
           <Route path="triagem" element={<TriagemPage />} />
           <Route path="agenda" element={<AgendaPage />} />
           <Route path="profissionais" element={<ProfissionaisPage />} />

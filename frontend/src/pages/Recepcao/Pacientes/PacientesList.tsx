@@ -1,13 +1,16 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, Search, Pencil, Trash2, Users, AlertCircle } from "lucide-react";
 import { PacienteFormModal } from "./PacienteFormModal";
-import { MOCK_PACIENTES } from "../../../data/mockPacientes";
+import { usePacientes } from "../../../contexts/PacientesContext";
 import { formatDate } from "../../../utils/masks";
 import type { Paciente } from "../../../types/paciente";
 import styles from "./PacientesList.module.css";
 
 export function PacientesList() {
-  const [pacientes, setPacientes] = useState<Paciente[]>(MOCK_PACIENTES);
+  const navigate = useNavigate();
+  const { pacientes, upsert, remove } = usePacientes();
+
   const [busca, setBusca] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
   const [pacienteEditando, setPacienteEditando] = useState<Paciente | null>(null);
@@ -29,27 +32,26 @@ export function PacientesList() {
     setModalAberto(true);
   };
 
-  const handleEditar = (paciente: Paciente) => {
+  const handleEditar = (paciente: Paciente, event?: React.MouseEvent) => {
+    event?.stopPropagation();
     setPacienteEditando(paciente);
     setModalAberto(true);
   };
 
   const handleSalvar = (dados: Paciente) => {
-    setPacientes((atual) => {
-      const existe = atual.some((p) => p.cpf === dados.cpf);
-      if (existe) {
-        return atual.map((p) => (p.cpf === dados.cpf ? { ...p, ...dados } : p));
-      }
-      return [dados, ...atual];
-    });
+    upsert(dados);
     setModalAberto(false);
     setPacienteEditando(null);
   };
 
   const handleExcluir = () => {
     if (!confirmarExclusao) return;
-    setPacientes((atual) => atual.filter((p) => p.cpf !== confirmarExclusao.cpf));
+    remove(confirmarExclusao.cpf);
     setConfirmarExclusao(null);
+  };
+
+  const abrirDetalhe = (paciente: Paciente) => {
+    navigate(`/recepcao/pacientes/${encodeURIComponent(paciente.cpf)}`);
   };
 
   return (
@@ -110,7 +112,18 @@ export function PacientesList() {
             </thead>
             <tbody>
               {filtrados.map((p) => (
-                <tr key={p.cpf}>
+                <tr
+                  key={p.cpf}
+                  className={styles.clickableRow}
+                  onClick={() => abrirDetalhe(p)}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      abrirDetalhe(p);
+                    }
+                  }}
+                >
                   <td className={styles.nameCell}>{p.nome}</td>
                   <td>{p.cpf}</td>
                   <td>
@@ -144,7 +157,7 @@ export function PacientesList() {
                     <button
                       type="button"
                       className={styles.iconButton}
-                      onClick={() => handleEditar(p)}
+                      onClick={(e) => handleEditar(p, e)}
                       aria-label={`Editar ${p.nome}`}
                       title="Editar"
                     >
@@ -153,7 +166,10 @@ export function PacientesList() {
                     <button
                       type="button"
                       className={`${styles.iconButton} ${styles.iconButtonDanger}`}
-                      onClick={() => setConfirmarExclusao(p)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setConfirmarExclusao(p);
+                      }}
                       aria-label={`Excluir ${p.nome}`}
                       title="Excluir"
                     >
