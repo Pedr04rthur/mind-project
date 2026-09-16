@@ -8,10 +8,11 @@ import { PatientLayout } from "./layouts/PatientLayout/PatientLayout";
 import { RecepcaoLayout } from "./layouts/RecepcaoLayout/RecepcaoLayout";
 import { PacientesList } from "./pages/Recepcao/Pacientes/PacientesList";
 import { PacienteDetail } from "./pages/Recepcao/Pacientes/PacienteDetail";
+import { ProfissionaisList } from "./pages/Recepcao/Profissionais/ProfissionaisList";
+import { ProfissionalDetail } from "./pages/Recepcao/Profissionais/ProfissionalDetail";
 import {
   TriagemPage,
   AgendaPage,
-  ProfissionaisPage,
   AuditoriaPage,
 } from "./pages/Recepcao/Placeholders/RecepcaoPlaceholders";
 
@@ -33,9 +34,10 @@ function App() {
           <Route index element={<Navigate to="/recepcao/pacientes" replace />} />
           <Route path="pacientes" element={<PacientesList />} />
           <Route path="pacientes/:cpf" element={<PacienteDetail />} />
+          <Route path="profissionais" element={<ProfissionaisList />} />
+          <Route path="profissionais/:cpf" element={<ProfissionalDetail />} />
           <Route path="triagem" element={<TriagemPage />} />
           <Route path="agenda" element={<AgendaPage />} />
-          <Route path="profissionais" element={<ProfissionaisPage />} />
           <Route path="auditoria" element={<AuditoriaPage />} />
         </Route>
       </Routes>
