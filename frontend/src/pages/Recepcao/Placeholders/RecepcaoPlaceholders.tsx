@@ -1,4 +1,4 @@
-import { ClipboardCheck, Calendar, Stethoscope, ShieldCheck } from "lucide-react";
+import { ClipboardCheck, Calendar, ShieldCheck } from "lucide-react";
 import { PagePlaceholder } from "../../../components/PagePlaceholder/PagePlaceholder";
 
 export function TriagemPage() {
@@ -17,16 +17,6 @@ export function AgendaPage() {
       title="Agenda"
       subtitle="Controle de fluxo da agenda clínica."
       icon={<Calendar size={22} strokeWidth={2} />}
-    />
-  );
-}
-
-export function ProfissionaisPage() {
-  return (
-    <PagePlaceholder
-      title="Profissionais"
-      subtitle="Cadastro e gestão de psicólogos e psiquiatras."
-      icon={<Stethoscope size={22} strokeWidth={2} />}
     />
   );
 }

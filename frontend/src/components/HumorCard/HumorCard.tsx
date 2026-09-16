@@ -1,7 +1,6 @@
 import { Smile, Frown } from "lucide-react";
+import type { HumorType } from "../../types/humor";
 import styles from "./HumorCard.module.css";
-
-export type HumorType = "bom" | "ruim";
 
 interface HumorCardProps {
   tipo: HumorType;

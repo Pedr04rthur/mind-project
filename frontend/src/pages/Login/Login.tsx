@@ -25,7 +25,7 @@ export function Login() {
 
     try {
       await new Promise((r) => setTimeout(r, 700));
-      navigate("/diario");
+      navigate("/selecionar-perfil");
     } catch {
       setErro("Credenciais inválidas. Verifique e tente novamente.");
     } finally {
