@@ -8,11 +8,14 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import { maskCpf, maskTelefone } from "../../../utils/masks";
+import { isValidCRP, isValidCRM } from "../../../utils/registros";
+import { CRPInput } from "../../../components/RegistroProfissionalInput/CRPInput";
+import { CRMInput } from "../../../components/RegistroProfissionalInput/CRMInput";
 import { EspecialidadeCombobox } from "../../../components/EspecialidadeCombobox/EspecialidadeCombobox";
+import { TipoProfissionalSelector } from "../../../components/TipoProfissionalSelector/TipoProfissionalSelector";
 import type {
   Profissional,
   ProfissionalFormData,
-  TipoProfissional,
 } from "../../../types/profissional";
 import type { Sexo } from "../../../types/paciente";
 import styles from "./ProfissionalFormModal.module.css";
@@ -82,13 +85,17 @@ export function ProfissionalFormModal({
       return;
     }
 
-    if (dados.tipo === "PSIQUIATRA" && !dados.crm.trim()) {
-      setErro("Psiquiatras precisam informar o CRM.");
+    if (dados.tipo === "PSIQUIATRA" && !isValidCRM(dados.crm)) {
+      setErro(
+        "CRM inválido. Use o formato CRM-UF 00000 (ex.: CRM-PB 12345)."
+      );
       return;
     }
 
-    if (dados.tipo === "PSICOLOGO" && !dados.crp.trim()) {
-      setErro("Psicólogos precisam informar o CRP.");
+    if (dados.tipo === "PSICOLOGO" && !isValidCRP(dados.crp)) {
+      setErro(
+        "CRP inválido. Use o formato CRP-XX 00000 (ex.: CRP-13 12345)."
+      );
       return;
     }
 
@@ -169,28 +176,10 @@ export function ProfissionalFormModal({
               Tipo de profissional
             </legend>
 
-            <div className={styles.typeGroup}>
-              {(["PSICOLOGO", "PSIQUIATRA"] as TipoProfissional[]).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  className={`${styles.typeOption} ${
-                    dados.tipo === t ? styles.typeActive : ""
-                  }`}
-                  onClick={() => update("tipo", t)}
-                  aria-pressed={dados.tipo === t}
-                >
-                  <span className={styles.typeTitle}>
-                    {t === "PSICOLOGO" ? "Psicólogo" : "Psiquiatra"}
-                  </span>
-                  <span className={styles.typeHint}>
-                    {t === "PSICOLOGO"
-                      ? "Registro CRP. Pode recomendar terapias."
-                      : "Registro CRM. Pode prescrever medicamentos."}
-                  </span>
-                </button>
-              ))}
-            </div>
+            <TipoProfissionalSelector
+              value={dados.tipo}
+              onChange={(tipo) => update("tipo", tipo)}
+            />
           </fieldset>
 
           <fieldset className={styles.fieldset}>
@@ -292,39 +281,33 @@ export function ProfissionalFormModal({
             </legend>
 
             <div className={styles.grid}>
-              {dados.tipo === "PSICOLOGO" ? (
-                <div className={`${styles.field} ${styles.fieldFull}`}>
-                  <label className={styles.label} htmlFor="crp">
-                    CRP *
-                  </label>
-                  <input
-                    id="crp"
-                    className={styles.input}
-                    value={dados.crp}
-                    onChange={(e) => update("crp", e.target.value)}
-                    placeholder="CRP-13 00000"
-                  />
-                  <span className={styles.hint}>
-                    Validação simulada (sem consulta real ao Conselho).
-                  </span>
-                </div>
-              ) : (
-                <div className={`${styles.field} ${styles.fieldFull}`}>
-                  <label className={styles.label} htmlFor="crm">
-                    CRM *
-                  </label>
-                  <input
-                    id="crm"
-                    className={styles.input}
-                    value={dados.crm}
-                    onChange={(e) => update("crm", e.target.value)}
-                    placeholder="CRM-PB 00000"
-                  />
-                  <span className={styles.hint}>
-                    Necessário para emissão de prescrições de medicamentos.
-                  </span>
-                </div>
-              )}
+              <div className={`${styles.field} ${styles.fieldFull}`}>
+                {dados.tipo === "PSICOLOGO" ? (
+                  <>
+                    <label className={styles.label} htmlFor="crp">
+                      CRP *
+                    </label>
+                    <CRPInput
+                      id="crp"
+                      value={dados.crp}
+                      onChange={(v) => update("crp", v)}
+                      required
+                    />
+                  </>
+                ) : (
+                  <>
+                    <label className={styles.label} htmlFor="crm">
+                      CRM *
+                    </label>
+                    <CRMInput
+                      id="crm"
+                      value={dados.crm}
+                      onChange={(v) => update("crm", v)}
+                      required
+                    />
+                  </>
+                )}
+              </div>
 
               <div className={`${styles.field} ${styles.fieldFull}`}>
                 <label className={styles.label} htmlFor="especialidade">
