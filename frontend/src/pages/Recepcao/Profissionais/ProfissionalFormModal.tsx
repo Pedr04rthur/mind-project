@@ -8,6 +8,7 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import { maskCpf, maskTelefone } from "../../../utils/masks";
+import { EspecialidadeCombobox } from "../../../components/EspecialidadeCombobox/EspecialidadeCombobox";
 import type {
   Profissional,
   ProfissionalFormData,
@@ -329,17 +330,20 @@ export function ProfissionalFormModal({
                 <label className={styles.label} htmlFor="especialidade">
                   Especialidade
                 </label>
-                <input
+                <EspecialidadeCombobox
                   id="especialidade"
-                  className={styles.input}
                   value={dados.especialidade}
-                  onChange={(e) => update("especialidade", e.target.value)}
+                  onChange={(v) => update("especialidade", v)}
+                  tipo={dados.tipo}
                   placeholder={
                     dados.tipo === "PSIQUIATRA"
                       ? "Ex.: Psiquiatria Clínica"
                       : "Ex.: Terapia Cognitivo-Comportamental"
                   }
                 />
+                <span className={styles.hint}>
+                  Selecione uma sugestão ou digite livremente.
+                </span>
               </div>
             </div>
           </fieldset>

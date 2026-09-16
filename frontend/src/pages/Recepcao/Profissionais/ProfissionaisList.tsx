@@ -2,14 +2,15 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
-  Search,
   Pencil,
   Trash2,
   Stethoscope,
   AlertCircle,
 } from "lucide-react";
 import { ProfissionalFormModal } from "./ProfissionalFormModal";
+import { SearchInput } from "../../../components/SearchInput/SearchInput";
 import { useProfissionais } from "../../../contexts/ProfissionaisContext";
+import { matchesSearch } from "../../../utils/search";
 import type { Profissional } from "../../../types/profissional";
 import styles from "./ProfissionaisList.module.css";
 
@@ -18,6 +19,9 @@ export function ProfissionaisList() {
   const { profissionais, upsert, remove } = useProfissionais();
 
   const [busca, setBusca] = useState("");
+  // TODO: ativar debounce quando a lista vier do backend
+  // const buscaAdiada = useDeferredValue(busca);
+
   const [filtroTipo, setFiltroTipo] = useState<"TODOS" | "PSICOLOGO" | "PSIQUIATRA">(
     "TODOS"
   );
@@ -29,16 +33,17 @@ export function ProfissionaisList() {
   );
 
   const filtrados = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
     return profissionais.filter((p) => {
       if (filtroTipo !== "TODOS" && p.tipo !== filtroTipo) return false;
-      if (!termo) return true;
-      return (
-        p.nome.toLowerCase().includes(termo) ||
-        p.cpf.toLowerCase().includes(termo) ||
-        p.email.toLowerCase().includes(termo) ||
-        p.crp.toLowerCase().includes(termo) ||
-        p.crm.toLowerCase().includes(termo)
+      return matchesSearch(
+        busca,
+        p.nome,
+        p.cpf,
+        p.email,
+        p.telefone,
+        p.crp,
+        p.crm,
+        p.especialidade
       );
     });
   }, [profissionais, busca, filtroTipo]);
@@ -92,16 +97,12 @@ export function ProfissionaisList() {
       </header>
 
       <div className={styles.toolbar}>
-        <div className={styles.searchWrapper}>
-          <Search size={18} className={styles.searchIcon} />
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Buscar por nome, CPF, e-mail, CRP ou CRM"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-          />
-        </div>
+        <SearchInput
+          value={busca}
+          onChange={setBusca}
+          placeholder="Buscar por nome, CPF, e-mail, CRP, CRM ou especialidade"
+          ariaLabel="Buscar profissionais"
+        />
 
         <div className={styles.filterGroup} role="tablist">
           {(["TODOS", "PSICOLOGO", "PSIQUIATRA"] as const).map((t) => (
@@ -134,7 +135,11 @@ export function ProfissionaisList() {
         {filtrados.length === 0 ? (
           <div className={styles.emptyState}>
             <AlertCircle size={28} strokeWidth={1.6} />
-            <p>Nenhum profissional encontrado.</p>
+            <p>
+              {busca
+                ? `Nenhum profissional encontrado para "${busca}".`
+                : "Nenhum profissional cadastrado ainda."}
+            </p>
           </div>
         ) : (
           <table className={styles.table}>

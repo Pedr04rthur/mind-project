@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Search, Pencil, Trash2, Users, AlertCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, AlertCircle } from "lucide-react";
 import { PacienteFormModal } from "./PacienteFormModal";
+import { SearchInput } from "../../../components/SearchInput/SearchInput";
 import { usePacientes } from "../../../contexts/PacientesContext";
 import { formatDate } from "../../../utils/masks";
+import { matchesSearch } from "../../../utils/search";
 import type { Paciente } from "../../../types/paciente";
 import styles from "./PacientesList.module.css";
 
@@ -12,18 +14,16 @@ export function PacientesList() {
   const { pacientes, upsert, remove } = usePacientes();
 
   const [busca, setBusca] = useState("");
+  // TODO: ativar debounce quando a lista vier do backend
+  // const buscaAdiada = useDeferredValue(busca);
+
   const [modalAberto, setModalAberto] = useState(false);
   const [pacienteEditando, setPacienteEditando] = useState<Paciente | null>(null);
   const [confirmarExclusao, setConfirmarExclusao] = useState<Paciente | null>(null);
 
   const filtrados = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
-    if (!termo) return pacientes;
-    return pacientes.filter(
-      (p) =>
-        p.nome.toLowerCase().includes(termo) ||
-        p.cpf.toLowerCase().includes(termo) ||
-        p.email.toLowerCase().includes(termo)
+    return pacientes.filter((p) =>
+      matchesSearch(busca, p.nome, p.cpf, p.email, p.telefone)
     );
   }, [pacientes, busca]);
 
@@ -76,16 +76,12 @@ export function PacientesList() {
       </header>
 
       <div className={styles.toolbar}>
-        <div className={styles.searchWrapper}>
-          <Search size={18} className={styles.searchIcon} />
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Buscar por nome, CPF ou e-mail"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-          />
-        </div>
+        <SearchInput
+          value={busca}
+          onChange={setBusca}
+          placeholder="Buscar por nome, CPF, e-mail ou telefone"
+          ariaLabel="Buscar pacientes"
+        />
         <span className={styles.counter}>
           {filtrados.length} {filtrados.length === 1 ? "paciente" : "pacientes"}
         </span>
@@ -95,7 +91,11 @@ export function PacientesList() {
         {filtrados.length === 0 ? (
           <div className={styles.emptyState}>
             <AlertCircle size={28} strokeWidth={1.6} />
-            <p>Nenhum paciente encontrado.</p>
+            <p>
+              {busca
+                ? `Nenhum paciente encontrado para "${busca}".`
+                : "Nenhum paciente cadastrado ainda."}
+            </p>
           </div>
         ) : (
           <table className={styles.table}>
