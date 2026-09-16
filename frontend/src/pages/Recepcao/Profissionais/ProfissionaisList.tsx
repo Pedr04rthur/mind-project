@@ -6,6 +6,8 @@ import {
   Trash2,
   Stethoscope,
   AlertCircle,
+  Filter,
+  X,
 } from "lucide-react";
 import { ProfissionalFormModal } from "./ProfissionalFormModal";
 import { SearchInput } from "../../../components/SearchInput/SearchInput";
@@ -13,6 +15,9 @@ import { useProfissionais } from "../../../contexts/ProfissionaisContext";
 import { matchesSearch } from "../../../utils/search";
 import type { Profissional } from "../../../types/profissional";
 import styles from "./ProfissionaisList.module.css";
+
+type FiltroTipo = "TODOS" | "PSICOLOGO" | "PSIQUIATRA";
+const TODAS_ESPECIALIDADES = "__TODAS__";
 
 export function ProfissionaisList() {
   const navigate = useNavigate();
@@ -22,9 +27,11 @@ export function ProfissionaisList() {
   // TODO: ativar debounce quando a lista vier do backend
   // const buscaAdiada = useDeferredValue(busca);
 
-  const [filtroTipo, setFiltroTipo] = useState<"TODOS" | "PSICOLOGO" | "PSIQUIATRA">(
-    "TODOS"
+  const [filtroTipo, setFiltroTipo] = useState<FiltroTipo>("TODOS");
+  const [filtroEspecialidade, setFiltroEspecialidade] = useState(
+    TODAS_ESPECIALIDADES
   );
+
   const [modalAberto, setModalAberto] = useState(false);
   const [profissionalEditando, setProfissionalEditando] =
     useState<Profissional | null>(null);
@@ -32,9 +39,49 @@ export function ProfissionaisList() {
     null
   );
 
+  /**
+   * Especialidades disponíveis para o filtro, derivadas dos profissionais
+   * visíveis após aplicar o filtro de tipo. Ignora strings vazias e
+   * ordena alfabeticamente (com locale pt-BR).
+   */
+  const especialidadesDisponiveis = useMemo(() => {
+    const set = new Set<string>();
+    profissionais.forEach((p) => {
+      if (filtroTipo !== "TODOS" && p.tipo !== filtroTipo) return;
+      const esp = p.especialidade?.trim();
+      if (esp) set.add(esp);
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [profissionais, filtroTipo]);
+
+  /**
+   * Se o usuário estava filtrando por uma especialidade e ela deixa de
+   * existir (ex.: trocou o tipo para Psicólogos mas o filtro era de
+   * Psiquiatras), resetamos automaticamente para "todas".
+   */
+  const especialidadeAtiva = useMemo(() => {
+    if (filtroEspecialidade === TODAS_ESPECIALIDADES) return TODAS_ESPECIALIDADES;
+    return especialidadesDisponiveis.includes(filtroEspecialidade)
+      ? filtroEspecialidade
+      : TODAS_ESPECIALIDADES;
+  }, [filtroEspecialidade, especialidadesDisponiveis]);
+
+  const filtrosAtivos =
+    filtroTipo !== "TODOS" ||
+    especialidadeAtiva !== TODAS_ESPECIALIDADES ||
+    busca.trim().length > 0;
+
   const filtrados = useMemo(() => {
     return profissionais.filter((p) => {
       if (filtroTipo !== "TODOS" && p.tipo !== filtroTipo) return false;
+
+      if (
+        especialidadeAtiva !== TODAS_ESPECIALIDADES &&
+        p.especialidade !== especialidadeAtiva
+      ) {
+        return false;
+      }
+
       return matchesSearch(
         busca,
         p.nome,
@@ -46,7 +93,13 @@ export function ProfissionaisList() {
         p.especialidade
       );
     });
-  }, [profissionais, busca, filtroTipo]);
+  }, [profissionais, busca, filtroTipo, especialidadeAtiva]);
+
+  const limparFiltros = () => {
+    setBusca("");
+    setFiltroTipo("TODOS");
+    setFiltroEspecialidade(TODAS_ESPECIALIDADES);
+  };
 
   const handleNovo = () => {
     setProfissionalEditando(null);
@@ -104,7 +157,7 @@ export function ProfissionaisList() {
           ariaLabel="Buscar profissionais"
         />
 
-        <div className={styles.filterGroup} role="tablist">
+        <div className={styles.filterGroup} role="tablist" aria-label="Filtrar por tipo">
           {(["TODOS", "PSICOLOGO", "PSIQUIATRA"] as const).map((t) => (
             <button
               key={t}
@@ -125,10 +178,39 @@ export function ProfissionaisList() {
           ))}
         </div>
 
+        <div className={styles.specialtyFilter}>
+          <Filter size={15} className={styles.specialtyIcon} aria-hidden="true" />
+          <select
+            className={styles.specialtySelect}
+            value={especialidadeAtiva}
+            onChange={(e) => setFiltroEspecialidade(e.target.value)}
+            disabled={especialidadesDisponiveis.length === 0}
+            aria-label="Filtrar por especialidade"
+          >
+            <option value={TODAS_ESPECIALIDADES}>Todas as especialidades</option>
+            {especialidadesDisponiveis.map((esp) => (
+              <option key={esp} value={esp}>
+                {esp}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <span className={styles.counter}>
           {filtrados.length}{" "}
           {filtrados.length === 1 ? "profissional" : "profissionais"}
         </span>
+
+        {filtrosAtivos && (
+          <button
+            type="button"
+            className={styles.clearFiltersButton}
+            onClick={limparFiltros}
+          >
+            <X size={14} />
+            <span>Limpar filtros</span>
+          </button>
+        )}
       </div>
 
       <div className={styles.tableWrapper}>
@@ -136,10 +218,19 @@ export function ProfissionaisList() {
           <div className={styles.emptyState}>
             <AlertCircle size={28} strokeWidth={1.6} />
             <p>
-              {busca
-                ? `Nenhum profissional encontrado para "${busca}".`
+              {filtrosAtivos
+                ? "Nenhum profissional encontrado com os filtros atuais."
                 : "Nenhum profissional cadastrado ainda."}
             </p>
+            {filtrosAtivos && (
+              <button
+                type="button"
+                className={styles.emptyClearButton}
+                onClick={limparFiltros}
+              >
+                Limpar filtros
+              </button>
+            )}
           </div>
         ) : (
           <table className={styles.table}>

@@ -393,3 +393,98 @@
     width: auto;
   }
 }
+
+/* --- Filtro de especialidade --- */
+
+.specialtyFilter {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 220px;
+}
+
+.specialtyIcon {
+  position: absolute;
+  left: 0.7rem;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.specialtySelect {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  padding: 0.5rem 2rem 0.5rem 2.1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.specialtySelect:hover:not(:disabled) {
+  border-color: #d1d5db;
+}
+
+.specialtySelect:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.specialtySelect:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* --- Botão limpar filtros --- */
+
+.clearFiltersButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #fecaca;
+  border-radius: 999px;
+  background-color: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.clearFiltersButton:hover {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.emptyClearButton {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 9px;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
+.emptyClearButton:hover {
+  background-color: #f9fafb;
+}
+
+@media (max-width: 768px) {
+  .specialtyFilter {
+    width: 100%;
+    min-width: 0;
+  }
+}
