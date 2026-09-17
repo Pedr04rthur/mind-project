@@ -3,16 +3,15 @@ import { AlertCircle } from "lucide-react";
 import { HumorCard } from "../../components/HumorCard/HumorCard";
 import { RegistroHojeCard } from "./RegistroHojeCard";
 import { useRegistrosHumor } from "../../contexts/RegistrosHumorContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { getDataDiaAtual } from "../../utils/dates";
-import type { HumorType, RegistroHumor } from "../../types/humor";
+import type { HumorType } from "../../types/humor";
 import styles from "./RegistroHumor.module.css";
 
 const MAX_COMENTARIO = 500;
 
-// TODO: substituir por contexto de autenticação quando o login existir
-const PACIENTE_ATUAL_CPF = "123.456.789-00";
-
 export function RegistroHumor() {
+  const { usuario } = useAuth();
   const { getRegistroDoDia, registrar, removerDoDia } = useRegistrosHumor();
 
   const [humor, setHumor] = useState<HumorType | null>(null);
@@ -20,26 +19,28 @@ export function RegistroHumor() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
+  const cpfPaciente = usuario?.cpf ?? "";
   const dataDia = getDataDiaAtual();
-  const registroHoje = getRegistroDoDia(PACIENTE_ATUAL_CPF, dataDia);
+  const registroHoje = cpfPaciente
+    ? getRegistroDoDia(cpfPaciente, dataDia)
+    : undefined;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!humor || enviando || registroHoje) return;
+    if (!humor || enviando || registroHoje || !cpfPaciente) return;
 
     setErro(null);
     setEnviando(true);
 
     try {
       await registrar(
-        PACIENTE_ATUAL_CPF,
+        cpfPaciente,
         humor,
         comentario.trim() ? comentario.trim() : null
       );
       setHumor(null);
       setComentario("");
     } catch (err) {
-      // O backend retorna 400 quando já existe registro no dia
       const msg =
         err instanceof Error
           ? err.message
@@ -51,8 +52,8 @@ export function RegistroHumor() {
   };
 
   const handleResetar = () => {
-    // Apenas limpa o cache local (não deleta no backend)
-    removerDoDia(PACIENTE_ATUAL_CPF, dataDia);
+    if (!cpfPaciente) return;
+    removerDoDia(cpfPaciente, dataDia);
     setHumor(null);
     setComentario("");
     setErro(null);
@@ -128,7 +129,7 @@ export function RegistroHumor() {
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={!humor || enviando}
+              disabled={!humor || enviando || !cpfPaciente}
             >
               {enviando ? "Enviando..." : "Registrar humor de hoje"}
             </button>
