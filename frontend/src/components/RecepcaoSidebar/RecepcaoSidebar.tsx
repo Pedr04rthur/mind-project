@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import {
-  HeartPulse,
   Users,
   ClipboardCheck,
   Calendar,
@@ -10,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import mindguy from "../../assets/images/mindguy.png";
 import { useState } from "react";
 import styles from "./RecepcaoSidebar.module.css";
 
@@ -28,9 +28,7 @@ export function RecepcaoSidebar() {
   return (
     <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""}`}>
       <div className={styles.brand}>
-        <span className={styles.brandMark} aria-hidden="true">
-          <HeartPulse size={20} strokeWidth={2.2} />
-        </span>
+        <img src={mindguy} alt="MindCare" className={styles.brandMark} />
         {!collapsed && (
           <div className={styles.brandText}>
             <span className={styles.brandName}>MindCare</span>
