@@ -52,15 +52,10 @@
 }
 
 .brandMark {
-  width: 42px;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  background: linear-gradient(140deg, #15803d 0%, #166534 100%);
-  color: #ffffff;
-  box-shadow: 0 3px 8px rgba(22, 101, 52, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .brandName {

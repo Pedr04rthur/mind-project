@@ -1,9 +1,3 @@
-/* ============================================================
-   Layout base (desktop)
-   Esquerda: imagem com overlay escuro (~66% da tela)
-   Direita: formulário alinhado à esquerda do painel
-   ============================================================ */
-
 .page {
   min-height: 100vh;
   display: grid;
@@ -12,8 +6,6 @@
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     sans-serif;
 }
-
-/* ---------- Painel da marca (esquerda) ---------- */
 
 .brandPanel {
   position: relative;
@@ -54,11 +46,18 @@
 .brandMark {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.75rem;
   font-family: "Archivo Black", "Inter", sans-serif;
-  font-size: 1.375rem;
+  font-size: 1.5rem;
   font-weight: 400;
   letter-spacing: 0.01em;
+}
+
+.brandLogo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .brandTitle {
@@ -76,8 +75,6 @@
   color: rgba(255, 255, 255, 0.85);
   max-width: 480px;
 }
-
-/* ---------- Painel do formulário (direita) ---------- */
 
 .formPanel {
   display: flex;
@@ -105,19 +102,26 @@
 .mobileBrand {
   display: none;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
   color: #16a34a;
   font-family: "Archivo Black", "Inter", sans-serif;
   font-weight: 400;
-  font-size: 1rem;
+  font-size: 1.125rem;
   margin-bottom: 0.75rem;
+}
+
+.mobileBrandLogo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .formTitle {
   font-family: "Archivo Black", "Inter", sans-serif;
   font-size: 2.25rem;
   font-weight: 400;
-  color: #0a7218;
+  color: #166534;
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
@@ -258,10 +262,6 @@
   line-height: 1.5;
 }
 
-/* ============================================================
-   Tablet / Mobile (≤ 900px)
-   ============================================================ */
-
 @media (max-width: 900px) {
   .page {
     grid-template-columns: 1fr;
@@ -318,10 +318,6 @@
     font-size: 1.75rem;
   }
 }
-
-/* ============================================================
-   Mobile pequeno (≤ 480px)
-   ============================================================ */
 
 @media (max-width: 480px) {
   .formPanel {

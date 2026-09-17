@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { HeartPulse, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import mindguy from "../../assets/images/mindguy.png";
 import styles from "./Header.module.css";
 
 const NAV_ITEMS = [
@@ -17,9 +18,7 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <NavLink to="/diario" className={styles.brand} aria-label="MindCare — início">
-          <span className={styles.brandMark} aria-hidden="true">
-            <HeartPulse size={22} strokeWidth={2.2} />
-          </span>
+          <img src={mindguy} alt="MindCare" className={styles.brandMark} />
           <span className={styles.brandName}>MindCare</span>
         </NavLink>
 
