@@ -1,18 +1,14 @@
 import { useState, type FormEvent } from "react";
-import { X, UserPlus, KeyRound, ClipboardList, AlertCircle } from "lucide-react";
+import { X, UserPlus, KeyRound, AlertCircle, CheckCircle2 } from "lucide-react";
 import { maskCpf, maskTelefone } from "../../../utils/masks";
-import type {
-  Paciente,
-  PacienteFormData,
-  Prioridade,
-  Sexo,
-} from "../../../types/paciente";
+import { isValidCPF } from "../../../utils/cpf";
+import type { Paciente, PacienteFormData } from "../../../types/paciente";
 import styles from "./PacienteFormModal.module.css";
 
 interface PacienteFormModalProps {
   paciente: Paciente | null;
   onClose: () => void;
-  onSave: (paciente: Paciente) => void;
+  onSave: (paciente: Paciente, senha: string) => Promise<void>;
 }
 
 const INITIAL: PacienteFormData = {
@@ -20,14 +16,10 @@ const INITIAL: PacienteFormData = {
   nome: "",
   telefone: "",
   endereco: "",
-  sexo: "FEMININO",
   email: "",
-  dataNasc: "",
   login: "",
   senha: "",
   confirmarSenha: "",
-  prioridade: "BAIXA",
-  observacao: "",
 };
 
 export function PacienteFormModal({
@@ -44,69 +36,79 @@ export function PacienteFormModal({
           nome: paciente.nome,
           telefone: paciente.telefone,
           endereco: paciente.endereco,
-          sexo: paciente.sexo,
           email: paciente.email,
-          dataNasc: paciente.dataNasc,
           login: paciente.email,
           senha: "",
           confirmarSenha: "",
-          prioridade: paciente.prioridade,
-          observacao: paciente.observacao,
         }
       : INITIAL
   );
 
   const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+  const [cpfTocado, setCpfTocado] = useState(false);
 
   const update = <K extends keyof PacienteFormData>(
     key: K,
     value: PacienteFormData[K]
   ) => setDados((d) => ({ ...d, [key]: value }));
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  // CPF só valida se o campo foi tocado (blur) ou se tem 11 dígitos digitados
+  const cpfDigits = dados.cpf.replace(/\D/g, "");
+  const cpfValido = isValidCPF(dados.cpf);
+  const cpfInvalido = (cpfTocado || cpfDigits.length === 11) && !cpfValido && cpfDigits.length > 0;
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErro(null);
 
-    if (!dados.cpf || !dados.nome || !dados.dataNasc || !dados.email) {
-      setErro("Preencha CPF, nome, data de nascimento e e-mail.");
+    if (!dados.cpf || !dados.nome || !dados.email) {
+      setErro("Preencha CPF, nome e e-mail.");
+      return;
+    }
+
+    if (!isValidCPF(dados.cpf)) {
+      setErro("CPF inválido. Verifique os dígitos e tente novamente.");
+      setCpfTocado(true);
       return;
     }
 
     if (!isEdicao) {
-      if (!dados.login || !dados.senha) {
-        setErro("Defina login e senha de acesso ao paciente.");
+      if (!dados.senha || !dados.confirmarSenha) {
+        setErro("Defina a senha de acesso do paciente.");
         return;
       }
       if (dados.senha !== dados.confirmarSenha) {
         setErro("As senhas não conferem.");
         return;
       }
+      if (dados.senha.length < 6) {
+        setErro("A senha deve ter pelo menos 6 caracteres.");
+        return;
+      }
     }
 
     const pacienteSalvo: Paciente = {
+      id: paciente?.id,
       cpf: dados.cpf,
       nome: dados.nome,
       telefone: dados.telefone,
       endereco: dados.endereco,
-      sexo: dados.sexo,
       email: dados.email,
-      dataNasc: dados.dataNasc,
       status: paciente?.status ?? "ATIVO",
-      prioridade: dados.prioridade,
-      observacao: dados.observacao,
-      criadoEm: paciente?.criadoEm ?? new Date().toISOString().slice(0, 10),
+      prioridade: paciente?.prioridade ?? "BAIXA",
     };
 
-    // TODO: enviar para o backend
-    // POST /pacientes + POST /usuarios-autenticacao
-    console.log("[PacienteFormModal] salvar:", {
-      paciente: pacienteSalvo,
-      credenciais: isEdicao
-        ? undefined
-        : { login: dados.login, senha: dados.senha, perfil: "PACIENTE" },
-    });
-
-    onSave(pacienteSalvo);
+    setEnviando(true);
+    try {
+      await onSave(pacienteSalvo, dados.senha);
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : "Erro ao salvar paciente";
+      setErro(msg);
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -137,7 +139,7 @@ export function PacienteFormModal({
           <fieldset className={styles.fieldset}>
             <legend className={styles.legend}>
               <UserPlus size={16} strokeWidth={2} />
-              Dados pessoais
+              Dados do paciente
             </legend>
 
             <div className={styles.grid}>
@@ -145,26 +147,49 @@ export function PacienteFormModal({
                 <label className={styles.label} htmlFor="cpf">
                   CPF *
                 </label>
-                <input
-                  id="cpf"
-                  className={styles.input}
-                  value={dados.cpf}
-                  onChange={(e) => update("cpf", maskCpf(e.target.value))}
-                  placeholder="000.000.000-00"
-                  disabled={isEdicao}
-                />
+                <div className={styles.inputWrapper}>
+                  <input
+                    id="cpf"
+                    className={`${styles.input} ${
+                      cpfInvalido ? styles.inputError : ""
+                    } ${cpfValido ? styles.inputSuccess : ""}`}
+                    value={dados.cpf}
+                    onChange={(e) => update("cpf", maskCpf(e.target.value))}
+                    onBlur={() => setCpfTocado(true)}
+                    placeholder="000.000.000-00"
+                    disabled={isEdicao || enviando}
+                    aria-invalid={cpfInvalido}
+                    aria-describedby={cpfInvalido ? "cpf-erro" : undefined}
+                    autoComplete="off"
+                  />
+                  {cpfValido && (
+                    <CheckCircle2
+                      size={16}
+                      className={styles.inputStatusIcon}
+                      aria-hidden="true"
+                    />
+                  )}
+                </div>
+                {cpfInvalido && (
+                  <span id="cpf-erro" className={styles.fieldError}>
+                    CPF inválido. Confira os dígitos.
+                  </span>
+                )}
               </div>
 
               <div className={styles.field}>
-                <label className={styles.label} htmlFor="dataNasc">
-                  Data de nascimento *
+                <label className={styles.label} htmlFor="telefone">
+                  Telefone *
                 </label>
                 <input
-                  id="dataNasc"
-                  type="date"
+                  id="telefone"
                   className={styles.input}
-                  value={dados.dataNasc}
-                  onChange={(e) => update("dataNasc", e.target.value)}
+                  value={dados.telefone}
+                  onChange={(e) =>
+                    update("telefone", maskTelefone(e.target.value))
+                  }
+                  placeholder="(00) 00000-0000"
+                  disabled={enviando}
                 />
               </div>
 
@@ -178,35 +203,7 @@ export function PacienteFormModal({
                   value={dados.nome}
                   onChange={(e) => update("nome", e.target.value)}
                   placeholder="Ex.: Ana Carolina Souza"
-                />
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="sexo">
-                  Sexo
-                </label>
-                <select
-                  id="sexo"
-                  className={styles.input}
-                  value={dados.sexo}
-                  onChange={(e) => update("sexo", e.target.value as Sexo)}
-                >
-                  <option value="FEMININO">Feminino</option>
-                  <option value="MASCULINO">Masculino</option>
-                  <option value="OUTRO">Outro</option>
-                </select>
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="telefone">
-                  Telefone
-                </label>
-                <input
-                  id="telefone"
-                  className={styles.input}
-                  value={dados.telefone}
-                  onChange={(e) => update("telefone", maskTelefone(e.target.value))}
-                  placeholder="(00) 00000-0000"
+                  disabled={enviando}
                 />
               </div>
 
@@ -221,12 +218,13 @@ export function PacienteFormModal({
                   value={dados.email}
                   onChange={(e) => update("email", e.target.value)}
                   placeholder="paciente@exemplo.com"
+                  disabled={enviando}
                 />
               </div>
 
               <div className={`${styles.field} ${styles.fieldFull}`}>
                 <label className={styles.label} htmlFor="endereco">
-                  Endereço
+                  Endereço *
                 </label>
                 <input
                   id="endereco"
@@ -234,6 +232,7 @@ export function PacienteFormModal({
                   value={dados.endereco}
                   onChange={(e) => update("endereco", e.target.value)}
                   placeholder="Rua, número, cidade/UF"
+                  disabled={enviando}
                 />
               </div>
             </div>
@@ -248,19 +247,6 @@ export function PacienteFormModal({
 
               <div className={styles.grid}>
                 <div className={`${styles.field} ${styles.fieldFull}`}>
-                  <label className={styles.label} htmlFor="login">
-                    Login *
-                  </label>
-                  <input
-                    id="login"
-                    className={styles.input}
-                    value={dados.login}
-                    onChange={(e) => update("login", e.target.value)}
-                    placeholder="E-mail ou CPF"
-                  />
-                </div>
-
-                <div className={styles.field}>
                   <label className={styles.label} htmlFor="senha">
                     Senha *
                   </label>
@@ -271,10 +257,11 @@ export function PacienteFormModal({
                     value={dados.senha}
                     onChange={(e) => update("senha", e.target.value)}
                     placeholder="Mínimo 6 caracteres"
+                    disabled={enviando}
                   />
                 </div>
 
-                <div className={styles.field}>
+                <div className={`${styles.field} ${styles.fieldFull}`}>
                   <label className={styles.label} htmlFor="confirmarSenha">
                     Confirmar senha *
                   </label>
@@ -285,55 +272,15 @@ export function PacienteFormModal({
                     value={dados.confirmarSenha}
                     onChange={(e) => update("confirmarSenha", e.target.value)}
                     placeholder="Repita a senha"
+                    disabled={enviando}
                   />
                 </div>
               </div>
             </fieldset>
           )}
 
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>
-              <ClipboardList size={16} strokeWidth={2} />
-              Triagem
-            </legend>
-
-            <div className={styles.grid}>
-              <div className={`${styles.field} ${styles.fieldFull}`}>
-                <label className={styles.label}>Prioridade</label>
-                <div className={styles.priorityGroup}>
-                  {(["BAIXA", "MEDIA", "ALTA"] as Prioridade[]).map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      className={`${styles.priorityOption} ${
-                        dados.prioridade === p ? styles.priorityActive : ""
-                      }`}
-                      onClick={() => update("prioridade", p)}
-                    >
-                      {p === "BAIXA" ? "Baixa" : p === "MEDIA" ? "Média" : "Alta"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className={`${styles.field} ${styles.fieldFull}`}>
-                <label className={styles.label} htmlFor="observacao">
-                  Observação
-                </label>
-                <textarea
-                  id="observacao"
-                  className={styles.textarea}
-                  rows={3}
-                  value={dados.observacao}
-                  onChange={(e) => update("observacao", e.target.value)}
-                  placeholder="Anotações da recepção sobre a triagem inicial."
-                />
-              </div>
-            </div>
-          </fieldset>
-
           {erro && (
-            <div className={styles.errorBox}>
+            <div className={styles.errorBox} role="alert">
               <AlertCircle size={16} />
               <span>{erro}</span>
             </div>
@@ -344,11 +291,20 @@ export function PacienteFormModal({
               type="button"
               className={styles.secondaryButton}
               onClick={onClose}
+              disabled={enviando}
             >
               Cancelar
             </button>
-            <button type="submit" className={styles.primaryButton}>
-              {isEdicao ? "Salvar alterações" : "Cadastrar paciente"}
+            <button
+              type="submit"
+              className={styles.primaryButton}
+              disabled={enviando || cpfInvalido}
+            >
+              {enviando
+                ? "Salvando..."
+                : isEdicao
+                ? "Salvar alterações"
+                : "Cadastrar paciente"}
             </button>
           </footer>
         </form>

@@ -1,25 +1,32 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Pencil, Trash2, Users, AlertCircle } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Users,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 import { PacienteFormModal } from "./PacienteFormModal";
 import { SearchInput } from "../../../components/SearchInput/SearchInput";
 import { usePacientes } from "../../../contexts/PacientesContext";
-import { formatDate } from "../../../utils/masks";
 import { matchesSearch } from "../../../utils/search";
 import type { Paciente } from "../../../types/paciente";
 import styles from "./PacientesList.module.css";
 
 export function PacientesList() {
   const navigate = useNavigate();
-  const { pacientes, upsert, remove } = usePacientes();
+  const { pacientes, loading, erro, create, update, remove, refresh } =
+    usePacientes();
 
   const [busca, setBusca] = useState("");
-  // TODO: ativar debounce quando a lista vier do backend
-  // const buscaAdiada = useDeferredValue(busca);
-
   const [modalAberto, setModalAberto] = useState(false);
   const [pacienteEditando, setPacienteEditando] = useState<Paciente | null>(null);
-  const [confirmarExclusao, setConfirmarExclusao] = useState<Paciente | null>(null);
+  const [confirmarExclusao, setConfirmarExclusao] = useState<Paciente | null>(
+    null
+  );
+  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
 
   const filtrados = useMemo(() => {
     return pacientes.filter((p) =>
@@ -38,16 +45,27 @@ export function PacientesList() {
     setModalAberto(true);
   };
 
-  const handleSalvar = (dados: Paciente) => {
-    upsert(dados);
+  const handleSalvar = async (dados: Paciente, senha: string) => {
+    if (pacienteEditando) {
+      await update(dados);
+    } else {
+      await create(dados, senha);
+    }
     setModalAberto(false);
     setPacienteEditando(null);
   };
 
-  const handleExcluir = () => {
+  const handleExcluir = async () => {
     if (!confirmarExclusao) return;
-    remove(confirmarExclusao.cpf);
-    setConfirmarExclusao(null);
+    setErroExclusao(null);
+    try {
+      await remove(confirmarExclusao.cpf);
+      setConfirmarExclusao(null);
+    } catch (err) {
+      setErroExclusao(
+        err instanceof Error ? err.message : "Erro ao excluir paciente"
+      );
+    }
   };
 
   const abrirDetalhe = (paciente: Paciente) => {
@@ -69,10 +87,28 @@ export function PacientesList() {
           </div>
         </div>
 
-        <button type="button" className={styles.primaryButton} onClick={handleNovo}>
-          <Plus size={18} strokeWidth={2.2} />
-          <span>Cadastrar paciente</span>
-        </button>
+        <div className={styles.headerActions}>
+          <button
+            type="button"
+            className={styles.refreshButton}
+            onClick={refresh}
+            disabled={loading}
+            title="Recarregar"
+          >
+            <RefreshCw
+              size={16}
+              className={loading ? styles.spinning : undefined}
+            />
+          </button>
+          <button
+            type="button"
+            className={styles.primaryButton}
+            onClick={handleNovo}
+          >
+            <Plus size={18} strokeWidth={2.2} />
+            <span>Cadastrar paciente</span>
+          </button>
+        </div>
       </header>
 
       <div className={styles.toolbar}>
@@ -88,7 +124,24 @@ export function PacientesList() {
       </div>
 
       <div className={styles.tableWrapper}>
-        {filtrados.length === 0 ? (
+        {loading && pacientes.length === 0 ? (
+          <div className={styles.emptyState}>
+            <RefreshCw size={24} className={styles.spinning} />
+            <p>Carregando pacientes...</p>
+          </div>
+        ) : erro ? (
+          <div className={styles.emptyState}>
+            <AlertCircle size={28} strokeWidth={1.6} />
+            <p>{erro}</p>
+            <button
+              type="button"
+              className={styles.retryButton}
+              onClick={refresh}
+            >
+              Tentar novamente
+            </button>
+          </div>
+        ) : filtrados.length === 0 ? (
           <div className={styles.emptyState}>
             <AlertCircle size={28} strokeWidth={1.6} />
             <p>
@@ -104,10 +157,7 @@ export function PacientesList() {
                 <th>Nome</th>
                 <th>CPF</th>
                 <th>Contato</th>
-                <th>Nascimento</th>
-                <th>Prioridade</th>
-                <th>Status</th>
-                <th className={styles.actionsColumn}>Ações</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -131,27 +181,6 @@ export function PacientesList() {
                       <span>{p.email}</span>
                       <span className={styles.contactMuted}>{p.telefone}</span>
                     </div>
-                  </td>
-                  <td>{formatDate(p.dataNasc)}</td>
-                  <td>
-                    <span
-                      className={`${styles.badge} ${styles[`prioridade${p.prioridade}`]}`}
-                    >
-                      {p.prioridade === "ALTA"
-                        ? "Alta"
-                        : p.prioridade === "MEDIA"
-                        ? "Média"
-                        : "Baixa"}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`${styles.badge} ${
-                        p.status === "ATIVO" ? styles.badgeAtivo : styles.badgeInativo
-                      }`}
-                    >
-                      {p.status === "ATIVO" ? "Ativo" : "Inativo"}
-                    </span>
                   </td>
                   <td className={styles.actionsCell}>
                     <button
@@ -195,13 +224,22 @@ export function PacientesList() {
       )}
 
       {confirmarExclusao && (
-        <div className={styles.overlay} onClick={() => setConfirmarExclusao(null)}>
+        <div
+          className={styles.overlay}
+          onClick={() => setConfirmarExclusao(null)}
+        >
           <div className={styles.confirmBox} onClick={(e) => e.stopPropagation()}>
             <h3 className={styles.confirmTitle}>Excluir paciente</h3>
             <p className={styles.confirmText}>
-              Tem certeza que deseja excluir <strong>{confirmarExclusao.nome}</strong>?
-              Esta ação gera um registro de auditoria (LGPD).
+              Tem certeza que deseja excluir{" "}
+              <strong>{confirmarExclusao.nome}</strong>? Esta ação gera um
+              registro de auditoria (LGPD).
             </p>
+
+            {erroExclusao && (
+              <p className={styles.confirmError}>{erroExclusao}</p>
+            )}
+
             <div className={styles.confirmActions}>
               <button
                 type="button"

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { AlertCircle } from "lucide-react";
 import { HumorCard } from "../../components/HumorCard/HumorCard";
 import { RegistroHojeCard } from "./RegistroHojeCard";
 import { useRegistrosHumor } from "../../contexts/RegistrosHumorContext";
@@ -8,50 +9,53 @@ import styles from "./RegistroHumor.module.css";
 
 const MAX_COMENTARIO = 500;
 
-// TODO: substituir por contexto de autenticação quando o backend entrar
+// TODO: substituir por contexto de autenticação quando o login existir
 const PACIENTE_ATUAL_CPF = "123.456.789-00";
 
 export function RegistroHumor() {
-  const { getRegistroDoDia, upsert, removerDoDia } = useRegistrosHumor();
+  const { getRegistroDoDia, registrar, removerDoDia } = useRegistrosHumor();
 
   const [humor, setHumor] = useState<HumorType | null>(null);
   const [comentario, setComentario] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
   const dataDia = getDataDiaAtual();
   const registroHoje = getRegistroDoDia(PACIENTE_ATUAL_CPF, dataDia);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!humor || enviando || registroHoje) return;
 
-    if (!humor) return;
+    setErro(null);
+    setEnviando(true);
 
-    // Guarda extra: se por algum motivo já existir registro hoje, ignora o envio
-    if (registroHoje) return;
-
-    const agora = new Date();
-    const novoRegistro: RegistroHumor = {
-      id: `${PACIENTE_ATUAL_CPF}-${dataDia}`,
-      cpfPaciente: PACIENTE_ATUAL_CPF,
-      humor,
-      comentario: comentario.trim() ? comentario.trim() : null,
-      criadoEm: agora.toISOString(),
-      dataDia,
-    };
-
-    // TODO: substituir por POST /registros-humor
-    // POST /registros-humor { humor, comentario }
-    // Backend deve retornar 409 Conflict se já existir registro no dia
-    console.log("[RegistroHumor] envio:", novoRegistro);
-
-    upsert(novoRegistro);
-    setHumor(null);
-    setComentario("");
+    try {
+      await registrar(
+        PACIENTE_ATUAL_CPF,
+        humor,
+        comentario.trim() ? comentario.trim() : null
+      );
+      setHumor(null);
+      setComentario("");
+    } catch (err) {
+      // O backend retorna 400 quando já existe registro no dia
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Não foi possível registrar seu humor agora.";
+      setErro(msg);
+    } finally {
+      setEnviando(false);
+    }
   };
 
   const handleResetar = () => {
+    // Apenas limpa o cache local (não deleta no backend)
     removerDoDia(PACIENTE_ATUAL_CPF, dataDia);
     setHumor(null);
     setComentario("");
+    setErro(null);
   };
 
   return (
@@ -103,6 +107,7 @@ export function RegistroHumor() {
                 value={comentario}
                 maxLength={MAX_COMENTARIO}
                 rows={5}
+                disabled={enviando}
                 onChange={(event) =>
                   setComentario(event.target.value.slice(0, MAX_COMENTARIO))
                 }
@@ -113,12 +118,19 @@ export function RegistroHumor() {
               </span>
             </div>
 
+            {erro && (
+              <div className={styles.errorBox} role="alert">
+                <AlertCircle size={16} />
+                <span>{erro}</span>
+              </div>
+            )}
+
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={!humor}
+              disabled={!humor || enviando}
             >
-              Registrar humor de hoje
+              {enviando ? "Enviando..." : "Registrar humor de hoje"}
             </button>
           </form>
         )}
