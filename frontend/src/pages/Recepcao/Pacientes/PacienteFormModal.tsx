@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { X, UserPlus, KeyRound, AlertCircle, CheckCircle2 } from "lucide-react";
+import { X, AlertCircle, CheckCircle2 } from "lucide-react";
 import { maskCpf, maskTelefone } from "../../../utils/masks";
 import { isValidCPF } from "../../../utils/cpf";
 import type { Paciente, PacienteFormData } from "../../../types/paciente";
@@ -53,10 +53,10 @@ export function PacienteFormModal({
     value: PacienteFormData[K]
   ) => setDados((d) => ({ ...d, [key]: value }));
 
-  // CPF só valida se o campo foi tocado (blur) ou se tem 11 dígitos digitados
   const cpfDigits = dados.cpf.replace(/\D/g, "");
   const cpfValido = isValidCPF(dados.cpf);
-  const cpfInvalido = (cpfTocado || cpfDigits.length === 11) && !cpfValido && cpfDigits.length > 0;
+  const cpfInvalido =
+    (cpfTocado || cpfDigits.length === 11) && !cpfValido && cpfDigits.length > 0;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -136,16 +136,13 @@ export function PacienteFormModal({
         </header>
 
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>
-              <UserPlus size={16} strokeWidth={2} />
-              Dados do paciente
-            </legend>
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>Dados do paciente</h3>
 
             <div className={styles.grid}>
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="cpf">
-                  CPF *
+                  CPF
                 </label>
                 <div className={styles.inputWrapper}>
                   <input
@@ -179,7 +176,7 @@ export function PacienteFormModal({
 
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="telefone">
-                  Telefone *
+                  Telefone
                 </label>
                 <input
                   id="telefone"
@@ -195,7 +192,7 @@ export function PacienteFormModal({
 
               <div className={`${styles.field} ${styles.fieldFull}`}>
                 <label className={styles.label} htmlFor="nome">
-                  Nome completo *
+                  Nome completo
                 </label>
                 <input
                   id="nome"
@@ -209,7 +206,7 @@ export function PacienteFormModal({
 
               <div className={`${styles.field} ${styles.fieldFull}`}>
                 <label className={styles.label} htmlFor="email">
-                  E-mail *
+                  E-mail
                 </label>
                 <input
                   id="email"
@@ -224,7 +221,7 @@ export function PacienteFormModal({
 
               <div className={`${styles.field} ${styles.fieldFull}`}>
                 <label className={styles.label} htmlFor="endereco">
-                  Endereço *
+                  Endereço
                 </label>
                 <input
                   id="endereco"
@@ -236,19 +233,16 @@ export function PacienteFormModal({
                 />
               </div>
             </div>
-          </fieldset>
+          </section>
 
           {!isEdicao && (
-            <fieldset className={styles.fieldset}>
-              <legend className={styles.legend}>
-                <KeyRound size={16} strokeWidth={2} />
-                Credenciais de acesso
-              </legend>
+            <section className={styles.section}>
+              <h3 className={styles.sectionTitle}>Credenciais de acesso</h3>
 
               <div className={styles.grid}>
                 <div className={`${styles.field} ${styles.fieldFull}`}>
                   <label className={styles.label} htmlFor="senha">
-                    Senha *
+                    Senha
                   </label>
                   <input
                     id="senha"
@@ -263,7 +257,7 @@ export function PacienteFormModal({
 
                 <div className={`${styles.field} ${styles.fieldFull}`}>
                   <label className={styles.label} htmlFor="confirmarSenha">
-                    Confirmar senha *
+                    Confirmar senha
                   </label>
                   <input
                     id="confirmarSenha"
@@ -276,7 +270,7 @@ export function PacienteFormModal({
                   />
                 </div>
               </div>
-            </fieldset>
+            </section>
           )}
 
           {erro && (

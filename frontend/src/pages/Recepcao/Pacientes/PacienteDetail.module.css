@@ -1,11 +1,12 @@
 .page {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2rem 2rem 3rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .backButton {
@@ -13,20 +14,30 @@
   align-items: center;
   gap: 0.4rem;
   align-self: flex-start;
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 0.75rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   background: transparent;
   color: #6b7280;
+  font-family: inherit;
   font-size: 0.8125rem;
   font-weight: 500;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .backButton:hover {
   background-color: #f3f4f6;
   color: #0f172a;
+  transform: translateX(-2px);
 }
+
+.backButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.25);
+}
+
+/* ---------- Header do perfil ---------- */
 
 .profileHeader {
   display: flex;
@@ -34,59 +45,63 @@
   justify-content: space-between;
   gap: 1.5rem;
   flex-wrap: wrap;
-  padding: 1.5rem;
+  padding: 1.75rem;
   background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.02);
+  border: 1px solid #f1f5f9;
+  border-radius: 20px;
+  box-shadow:
+    0 1px 2px rgba(17, 24, 39, 0.03),
+    0 4px 16px rgba(17, 24, 39, 0.04);
 }
 
 .profileIdentity {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.15rem;
   min-width: 0;
 }
 
 .avatar {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: linear-gradient(140deg, #dcfce7 0%, #bbf7d0 100%);
+  background-color: #dcfce7;
   color: #166534;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   letter-spacing: 0.02em;
 }
 
 .profileInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.4rem;
   min-width: 0;
 }
 
 .name {
-  font-size: 1.375rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #0f172a;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 .metaRow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
 }
 
 .metaItem {
   font-size: 0.8125rem;
   color: #6b7280;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 .metaDivider {
@@ -101,17 +116,21 @@
   gap: 0.5rem;
 }
 
+/* ---------- Botões ---------- */
+
 .secondaryButton {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.6rem 1rem;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 9px;
+  padding: 0.65rem 1.1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   background-color: #ffffff;
   color: #374151;
+  font-family: inherit;
   font-size: 0.875rem;
   font-weight: 500;
+  cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
@@ -124,112 +143,93 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.6rem 1rem;
+  padding: 0.65rem 1.1rem;
   border: none;
-  border-radius: 9px;
+  border-radius: 12px;
   background-color: #dc2626;
   color: #ffffff;
+  font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
+  cursor: pointer;
   transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .dangerButton:hover {
   background-color: #b91c1c;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.22);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.25);
 }
+
+/* ---------- Grid de cards ---------- */
 
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .card {
   background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 1.25rem 1.25rem 1rem;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-}
-
-.cardHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #16a34a;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid #f1f5f9;
+  gap: 1.1rem;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.03);
 }
 
 .cardTitle {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
-  color: #0f172a;
-  letter-spacing: 0.005em;
+  color: #16a34a;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .infoList {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.95rem;
   margin: 0;
 }
 
 .infoRow {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
 }
 
 .infoLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  color: #9ca3af;
+  letter-spacing: 0.02em;
 }
 
 .infoValue {
   margin: 0;
   font-size: 0.9375rem;
   color: #111827;
-  line-height: 1.45;
+  font-weight: 500;
+  line-height: 1.5;
   word-break: break-word;
 }
+
+/* ---------- Badges ---------- */
 
 .badge {
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
-  padding: 0.15rem 0.6rem;
+  padding: 0.2rem 0.65rem;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
   border: 1px solid transparent;
-}
-
-.prioridadeALTA {
-  background-color: #fef2f2;
-  color: #b91c1c;
-  border-color: #fecaca;
-}
-
-.prioridadeMEDIA {
-  background-color: #fffbeb;
-  color: #b45309;
-  border-color: #fde68a;
-}
-
-.prioridadeBAIXA {
-  background-color: #f0f9ff;
-  color: #0369a1;
-  border-color: #bae6fd;
 }
 
 .badgeAtivo {
@@ -244,59 +244,97 @@
   border-color: #e5e7eb;
 }
 
+/* ---------- LGPD ---------- */
+
 .lgpdNote {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  gap: 0.55rem;
+  padding: 0.85rem 1.1rem;
   border: 1px solid #dcfce7;
   background-color: #f0fdf4;
   color: #166534;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 0.8125rem;
+  line-height: 1.5;
 }
 
 .lgpdNote code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   background-color: #dcfce7;
-  padding: 0.05rem 0.35rem;
+  padding: 0.05rem 0.4rem;
   border-radius: 4px;
   font-size: 0.8125rem;
 }
+
+/* ---------- Overlay / Confirmação ---------- */
 
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background-color: rgba(15, 23, 42, 0.45);
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+  animation: overlayIn 180ms ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .confirmBox {
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
   background-color: #ffffff;
-  border-radius: 14px;
-  padding: 1.5rem;
+  border-radius: 20px;
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+  gap: 0.85rem;
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.25),
+    0 2px 6px rgba(15, 23, 42, 0.08);
+  animation: modalIn 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .confirmTitle {
   font-size: 1.125rem;
   font-weight: 700;
   color: #0f172a;
+  letter-spacing: -0.01em;
 }
 
 .confirmText {
   font-size: 0.9375rem;
   color: #4b5563;
-  line-height: 1.55;
+  line-height: 1.6;
+}
+
+.confirmError {
+  font-size: 0.8125rem;
+  color: #b91c1c;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+  margin: 0;
 }
 
 .confirmActions {
@@ -306,22 +344,27 @@
   margin-top: 0.5rem;
 }
 
+/* ---------- Estado "não encontrado" ---------- */
+
 .primaryButton {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.1rem;
+  padding: 0.75rem 1.25rem;
   border: none;
-  border-radius: 9px;
+  border-radius: 12px;
   background-color: #16a34a;
   color: #ffffff;
+  font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
-  transition: background-color 0.15s ease;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .primaryButton:hover {
   background-color: #15803d;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.25);
 }
 
 .notFound {
@@ -345,7 +388,10 @@
   font-size: 0.9375rem;
   color: #6b7280;
   max-width: 380px;
+  line-height: 1.55;
 }
+
+/* ---------- Responsivo ---------- */
 
 @media (max-width: 900px) {
   .grid {
@@ -359,11 +405,18 @@
   }
 
   .profileHeader {
-    padding: 1.25rem;
+    padding: 1.35rem;
+    border-radius: 16px;
+  }
+
+  .avatar {
+    width: 54px;
+    height: 54px;
+    font-size: 1.0625rem;
   }
 
   .name {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
   }
 
   .headerActions {
@@ -374,14 +427,14 @@
     flex: 1;
     justify-content: center;
   }
-}
 
-.confirmError {
-  font-size: 0.8125rem;
-  color: #b91c1c;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  margin: 0;
+  .card {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
+
+  .confirmBox {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
 }
