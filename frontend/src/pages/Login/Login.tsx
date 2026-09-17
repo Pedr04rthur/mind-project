@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Lock, User, HeartPulse } from "lucide-react";
+import { Eye, EyeOff, Lock, User } from "lucide-react";
+import mindguy from "../../assets/images/mindguy.png";
 import styles from "./Login.module.css";
 
 export function Login() {
@@ -38,7 +39,7 @@ export function Login() {
       <section className={styles.brandPanel}>
         <div className={styles.brandContent}>
           <div className={styles.brandMark}>
-            <HeartPulse size={28} strokeWidth={2.2} />
+            <img src={mindguy} alt="MindCare" className={styles.brandLogo} />
             <span>MindCare</span>
           </div>
           <h1 className={styles.brandTitle}>
@@ -55,7 +56,11 @@ export function Login() {
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <header className={styles.formHeader}>
             <div className={styles.mobileBrand}>
-              <HeartPulse size={20} strokeWidth={2.2} />
+              <img
+                src={mindguy}
+                alt="MindCare"
+                className={styles.mobileBrandLogo}
+              />
               <span>MindCare</span>
             </div>
             <h2 className={styles.formTitle}>Bem-vindo</h2>

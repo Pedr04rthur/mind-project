@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import {
-  HeartPulse,
   Heart,
   Stethoscope,
   Users,
   ArrowRight,
   ChevronLeft,
 } from "lucide-react";
+import mindguy from "../../assets/images/mindguy.png";
 import { useAuth, getHomeDoPerfil } from "../../contexts/AuthContext";
 import type { PerfilUsuario, UsuarioLogado } from "../../types/auth";
 import styles from "./SelecionarPerfil.module.css";
@@ -109,9 +109,7 @@ export function SelecionarPerfil() {
         </button>
 
         <div className={styles.brand}>
-          <span className={styles.brandMark} aria-hidden="true">
-            <HeartPulse size={18} strokeWidth={2.2} />
-          </span>
+          <img src={mindguy} alt="MindCare" className={styles.brandMark} />
           <span className={styles.brandName}>MindCare</span>
         </div>
       </header>

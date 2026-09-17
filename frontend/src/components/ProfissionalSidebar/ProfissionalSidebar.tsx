@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import {
-  HeartPulse,
   Users,
   CalendarCheck,
   FileText,
@@ -11,6 +10,7 @@ import {
   ChevronRight,
   ShieldCheck,
 } from "lucide-react";
+import mindguy from "../../assets/images/mindguy.png";
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import styles from "./ProfissionalSidebar.module.css";
@@ -43,9 +43,7 @@ export function ProfissionalSidebar() {
   return (
     <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""}`}>
       <div className={styles.brand}>
-        <span className={styles.brandMark} aria-hidden="true">
-          <HeartPulse size={20} strokeWidth={2.2} />
-        </span>
+        <img src={mindguy} alt="MindCare" className={styles.brandMark} />
         {!collapsed && (
           <div className={styles.brandText}>
             <span className={styles.brandName}>MindCare</span>
