@@ -1,0 +1,16 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: mindproject-backend
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: mindproject-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
