@@ -1,0 +1,469 @@
+.page {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.titleIcon {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #f0fdf4;
+  border: 1px solid #dcfce7;
+  color: #16a34a;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  font-size: 0.9375rem;
+  color: #6b7280;
+  margin-top: 0.15rem;
+}
+
+.refreshButton {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.refreshButton:hover:not(:disabled) {
+  background-color: #f9fafb;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.refreshButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.alertBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem;
+  border-radius: 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.alertBanner strong {
+  display: block;
+  font-size: 0.9375rem;
+  color: #7f1d1d;
+}
+
+.alertBanner p {
+  margin: 0.2rem 0 0;
+  font-size: 0.8125rem;
+  color: #991b1b;
+  line-height: 1.5;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1rem 1.15rem;
+  border-radius: 12px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-top: 0.15rem;
+}
+
+.statAguardando { border-color: #e5e7eb; }
+.statAguardando .statValue { color: #4b5563; }
+
+.statTriados { border-color: #dcfce7; background-color: #f0fdf4; }
+.statTriados .statValue { color: #166534; }
+
+.statAlta { border-color: #fecaca; background-color: #fef2f2; }
+.statAlta .statValue { color: #b91c1c; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 360px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.85rem;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.7rem 1rem 0.7rem 2.5rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.tabs {
+  display: inline-flex;
+  padding: 0.25rem;
+  background-color: #f3f4f6;
+  border-radius: 10px;
+  gap: 0.15rem;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tab:hover {
+  color: #0f172a;
+  background-color: #ffffff;
+}
+
+.tabActive {
+  background-color: #ffffff;
+  color: #166534;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.06);
+}
+
+.tabBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background-color: #e5e7eb;
+  color: #4b5563;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.tabActive .tabBadge {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background-color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.row:hover {
+  border-color: #bbf7d0;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.06);
+}
+
+.row:focus-visible {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.25);
+}
+
+.rowAlta {
+  border-color: #fecaca;
+  background: linear-gradient(90deg, #fef2f2 0%, #ffffff 40%);
+}
+
+.rowAlta:hover {
+  border-color: #fca5a5;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.avatarAlta {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.avatarMedia {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.nome {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.meta {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.observacao {
+  font-size: 0.8125rem;
+  color: #4b5563;
+  line-height: 1.4;
+  margin-top: 0.15rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.badgeAlta {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.badgeMedia {
+  background-color: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.badgeBaixa {
+  background-color: #f0f9ff;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+
+.badgeAguardando {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  border: 1px dashed #d1d5db;
+  white-space: nowrap;
+}
+
+.chevron {
+  color: #d1d5db;
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.row:hover .chevron {
+  color: #16a34a;
+  transform: translateX(2px);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #9ca3af;
+  background-color: #ffffff;
+  border: 1px dashed #e5e7eb;
+  border-radius: 14px;
+  font-size: 0.9375rem;
+}
+
+.emptyHint {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+}
+
+.emptyCta {
+  margin-top: 0.75rem;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 9px;
+  background-color: #16a34a;
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.emptyCta:hover {
+  background-color: #15803d;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrapper {
+    max-width: none;
+  }
+
+  .tabs {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+
+  .row {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "avatar info chevron"
+      "status status status";
+    gap: 0.6rem;
+  }
+
+  .avatar { grid-area: avatar; }
+  .info { grid-area: info; }
+  .status { grid-area: status; justify-self: start; }
+  .chevron { grid-area: chevron; }
+}

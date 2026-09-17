@@ -38,7 +38,7 @@ const OPCOES: PerfilOpcao[] = [
     accent: "verde",
     usuario: {
       perfil: "PACIENTE",
-      cpf: "123.456.789-00",
+      cpf: "529.982.247-25",
       nome: "Ana Carolina Souza",
       emailLogin: "ana.souza@exemplo.com",
     },

@@ -8,26 +8,32 @@ import {
   Phone,
   Mail,
   MapPin,
-  CalendarDays,
-  ClipboardList,
   AlertCircle,
   ShieldCheck,
 } from "lucide-react";
 import { PacienteFormModal } from "./PacienteFormModal";
 import { usePacientes } from "../../../contexts/PacientesContext";
-import { formatDate } from "../../../utils/masks";
 import type { Paciente } from "../../../types/paciente";
 import styles from "./PacienteDetail.module.css";
 
 export function PacienteDetail() {
   const navigate = useNavigate();
   const { cpf } = useParams<{ cpf: string }>();
-  const { getByCpf, upsert, remove } = usePacientes();
+  const { getByCpf, update, remove, loading } = usePacientes();
 
   const paciente = cpf ? getByCpf(cpf) : undefined;
 
   const [editando, setEditando] = useState(false);
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
+
+  if (loading && !paciente) {
+    return (
+      <section className={styles.notFound}>
+        <p>Carregando...</p>
+      </section>
+    );
+  }
 
   if (!paciente) {
     return (
@@ -49,14 +55,21 @@ export function PacienteDetail() {
     );
   }
 
-  const handleSalvar = (dados: Paciente) => {
-    upsert(dados);
+  const handleSalvar = async (dados: Paciente) => {
+    await update(dados);
     setEditando(false);
   };
 
-  const handleExcluir = () => {
-    remove(paciente.cpf);
-    navigate("/recepcao/pacientes");
+  const handleExcluir = async () => {
+    setErroExclusao(null);
+    try {
+      await remove(paciente.cpf);
+      navigate("/recepcao/pacientes");
+    } catch (err) {
+      setErroExclusao(
+        err instanceof Error ? err.message : "Erro ao excluir paciente"
+      );
+    }
   };
 
   const iniciais = paciente.nome
@@ -84,28 +97,20 @@ export function PacienteDetail() {
             <h1 className={styles.name}>{paciente.nome}</h1>
             <div className={styles.metaRow}>
               <span className={styles.metaItem}>CPF {paciente.cpf}</span>
-              <span className={styles.metaDivider} aria-hidden="true" />
-              <span className={styles.metaItem}>
-                Nasc. {formatDate(paciente.dataNasc)}
-              </span>
-              <span className={styles.metaDivider} aria-hidden="true" />
-              <span
-                className={`${styles.badge} ${
-                  paciente.status === "ATIVO" ? styles.badgeAtivo : styles.badgeInativo
-                }`}
-              >
-                {paciente.status === "ATIVO" ? "Ativo" : "Inativo"}
-              </span>
-              <span
-                className={`${styles.badge} ${styles[`prioridade${paciente.prioridade}`]}`}
-              >
-                Prioridade{" "}
-                {paciente.prioridade === "ALTA"
-                  ? "alta"
-                  : paciente.prioridade === "MEDIA"
-                  ? "média"
-                  : "baixa"}
-              </span>
+              {paciente.status && (
+                <>
+                  <span className={styles.metaDivider} aria-hidden="true" />
+                  <span
+                    className={`${styles.badge} ${
+                      paciente.status === "ATIVO"
+                        ? styles.badgeAtivo
+                        : styles.badgeInativo
+                    }`}
+                  >
+                    {paciente.status === "ATIVO" ? "Ativo" : "Inativo"}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -145,20 +150,6 @@ export function PacienteDetail() {
               <dt className={styles.infoLabel}>CPF</dt>
               <dd className={styles.infoValue}>{paciente.cpf}</dd>
             </div>
-            <div className={styles.infoRow}>
-              <dt className={styles.infoLabel}>Data de nascimento</dt>
-              <dd className={styles.infoValue}>{formatDate(paciente.dataNasc)}</dd>
-            </div>
-            <div className={styles.infoRow}>
-              <dt className={styles.infoLabel}>Sexo</dt>
-              <dd className={styles.infoValue}>
-                {paciente.sexo === "FEMININO"
-                  ? "Feminino"
-                  : paciente.sexo === "MASCULINO"
-                  ? "Masculino"
-                  : "Outro"}
-              </dd>
-            </div>
           </dl>
         </article>
 
@@ -172,9 +163,7 @@ export function PacienteDetail() {
               <dt className={styles.infoLabel}>
                 <Phone size={14} /> Telefone
               </dt>
-              <dd className={styles.infoValue}>
-                {paciente.telefone || "—"}
-              </dd>
+              <dd className={styles.infoValue}>{paciente.telefone || "—"}</dd>
             </div>
             <div className={styles.infoRow}>
               <dt className={styles.infoLabel}>
@@ -186,57 +175,7 @@ export function PacienteDetail() {
               <dt className={styles.infoLabel}>
                 <MapPin size={14} /> Endereço
               </dt>
-              <dd className={styles.infoValue}>
-                {paciente.endereco || "—"}
-              </dd>
-            </div>
-          </dl>
-        </article>
-
-        <article className={styles.card}>
-          <header className={styles.cardHeader}>
-            <ClipboardList size={18} strokeWidth={2} />
-            <h2 className={styles.cardTitle}>Triagem</h2>
-          </header>
-          <dl className={styles.infoList}>
-            <div className={styles.infoRow}>
-              <dt className={styles.infoLabel}>Prioridade</dt>
-              <dd className={styles.infoValue}>
-                <span
-                  className={`${styles.badge} ${styles[`prioridade${paciente.prioridade}`]}`}
-                >
-                  {paciente.prioridade === "ALTA"
-                    ? "Alta"
-                    : paciente.prioridade === "MEDIA"
-                    ? "Média"
-                    : "Baixa"}
-                </span>
-              </dd>
-            </div>
-            <div className={styles.infoRow}>
-              <dt className={styles.infoLabel}>Observação</dt>
-              <dd className={styles.infoValue}>
-                {paciente.observacao || "Sem observações registradas."}
-              </dd>
-            </div>
-          </dl>
-        </article>
-
-        <article className={styles.card}>
-          <header className={styles.cardHeader}>
-            <CalendarDays size={18} strokeWidth={2} />
-            <h2 className={styles.cardTitle}>Registro</h2>
-          </header>
-          <dl className={styles.infoList}>
-            <div className={styles.infoRow}>
-              <dt className={styles.infoLabel}>Cadastrado em</dt>
-              <dd className={styles.infoValue}>{formatDate(paciente.criadoEm)}</dd>
-            </div>
-            <div className={styles.infoRow}>
-              <dt className={styles.infoLabel}>Status</dt>
-              <dd className={styles.infoValue}>
-                {paciente.status === "ATIVO" ? "Ativo" : "Inativo"}
-              </dd>
+              <dd className={styles.infoValue}>{paciente.endereco || "—"}</dd>
             </div>
           </dl>
         </article>
@@ -245,8 +184,8 @@ export function PacienteDetail() {
       <div className={styles.lgpdNote}>
         <ShieldCheck size={16} strokeWidth={2} />
         <span>
-          Dados sensíveis de saúde protegidos pela LGPD. Exclusões são registradas
-          na tabela <code>LogExclusoes</code>.
+          Dados sensíveis de saúde protegidos pela LGPD. Exclusões são
+          registradas na tabela <code>LogExclusoes</code>.
         </span>
       </div>
 
@@ -266,9 +205,14 @@ export function PacienteDetail() {
           <div className={styles.confirmBox} onClick={(e) => e.stopPropagation()}>
             <h3 className={styles.confirmTitle}>Excluir paciente</h3>
             <p className={styles.confirmText}>
-              Tem certeza que deseja excluir <strong>{paciente.nome}</strong>? Esta
-              ação gera um registro de auditoria (LGPD).
+              Tem certeza que deseja excluir <strong>{paciente.nome}</strong>?
+              Esta ação gera um registro de auditoria (LGPD).
             </p>
+
+            {erroExclusao && (
+              <p className={styles.confirmError}>{erroExclusao}</p>
+            )}
+
             <div className={styles.confirmActions}>
               <button
                 type="button"

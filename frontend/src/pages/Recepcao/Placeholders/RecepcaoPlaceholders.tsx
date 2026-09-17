@@ -1,15 +1,5 @@
-import { ClipboardCheck, Calendar, ShieldCheck } from "lucide-react";
+import { Calendar, ShieldCheck } from "lucide-react";
 import { PagePlaceholder } from "../../../components/PagePlaceholder/PagePlaceholder";
-
-export function TriagemPage() {
-  return (
-    <PagePlaceholder
-      title="Triagem"
-      subtitle="Acolhimento inicial e priorização dos pacientes."
-      icon={<ClipboardCheck size={22} strokeWidth={2} />}
-    />
-  );
-}
 
 export function AgendaPage() {
   return (
