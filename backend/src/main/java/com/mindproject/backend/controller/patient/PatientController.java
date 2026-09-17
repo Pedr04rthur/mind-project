@@ -44,28 +44,33 @@ public class PatientController {
     }
 
     @GetMapping("/{cpf}")
-    @Operation(summary = "Busca paciente por ID")
+    @Operation(summary = "Busca paciente por CPF")
     @ApiResponse(responseCode = "200", description = "Paciente encontrado")
-    //@ApiResponse(responseCode = "404", description = "Paciente não encontrado", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    public ResponseEntity<PatientResponse> findById(@Parameter(description = "CPF do paciente", example = "1") @PathVariable String cpf) {
-        return ResponseEntity.status(HttpStatus.OK).body(PatientResponse.fromEntity(patientService.findByCPF(cpf)));
+    public ResponseEntity<PatientResponse> findById(
+            @Parameter(description = "CPF do paciente", example = "12345678909")
+            @PathVariable String cpf) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PatientResponse.fromEntity(patientService.findByCPF(cpf)));
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Atualiza os dados de um paciente por ID")
+    @PutMapping("/{cpf}")
+    @Operation(summary = "Atualiza os dados de um paciente por CPF")
     @ApiResponse(responseCode = "200", description = "Paciente atualizado com sucesso")
-     //@ApiResponse(responseCode = "404", description = "Paciente não encontrado", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-     //@ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    public ResponseEntity<PatientResponse> update(@Parameter(description = "CPF do paciente", example = "1") @PathVariable String cpf, @RequestBody @Valid PatientRequest request) {
+    public ResponseEntity<PatientResponse> update(
+            @Parameter(description = "CPF do paciente", example = "12345678909")
+            @PathVariable String cpf,
+            @RequestBody @Valid PatientRequest request) {
         Patient patient = request.toEntity();
-        return ResponseEntity.status(HttpStatus.OK).body(PatientResponse.fromEntity(patientService.update(cpf, patient)));
-     }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(PatientResponse.fromEntity(patientService.update(cpf, patient)));
+    }
 
     @DeleteMapping("/{cpf}")
-    @Operation(summary = "Exclui um paciente por ID")
+    @Operation(summary = "Exclui um paciente por CPF")
     @ApiResponse(responseCode = "204", description = "Paciente excluído com sucesso")
-    //@ApiResponse(responseCode = "404", description = "Paciente não encontrado", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    public ResponseEntity<Void> delete(@Parameter(description = "CPF do paciente", example = "1") @PathVariable String cpf) {
+    public ResponseEntity<Void> delete(
+            @Parameter(description = "CPF do paciente", example = "12345678909")
+            @PathVariable String cpf) {
         patientService.delete(cpf);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
