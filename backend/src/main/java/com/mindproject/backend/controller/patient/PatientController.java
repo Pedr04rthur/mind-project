@@ -2,7 +2,8 @@ package com.mindproject.backend.controller.patient;
 
 import com.mindproject.backend.controller.patient.dto.PatientRequest;
 import com.mindproject.backend.controller.patient.dto.PatientResponse;
-import com.mindproject.backend.service.mood.PatientService;
+import com.mindproject.backend.domain.entity.Patient;
+import com.mindproject.backend.service.patient.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,14 +51,15 @@ public class PatientController {
         return ResponseEntity.status(HttpStatus.OK).body(PatientResponse.fromEntity(patientService.findByCPF(cpf)));
     }
 
-    // @PutMapping("/{id}")
-    // @Operation(summary = "Atualiza os dados de um paciente por ID")
-    // @ApiResponse(responseCode = "200", description = "Paciente atualizado com sucesso")
-    // @ApiResponse(responseCode = "404", description = "Paciente não encontrado", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    // @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    // public ResponseEntity<PatientResponse> update(@Parameter(description = "ID do paciente", example = "1") @PathVariable Long id, @RequestBody @Valid PatientRequest request) {
-    //     return ResponseEntity.status(HttpStatus.OK).body(patientService.update(id, request));
-    // }
+    @PutMapping("/{id}")
+    @Operation(summary = "Atualiza os dados de um paciente por ID")
+    @ApiResponse(responseCode = "200", description = "Paciente atualizado com sucesso")
+     //@ApiResponse(responseCode = "404", description = "Paciente não encontrado", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+     //@ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    public ResponseEntity<PatientResponse> update(@Parameter(description = "CPF do paciente", example = "1") @PathVariable String cpf, @RequestBody @Valid PatientRequest request) {
+        Patient patient = request.toEntity();
+        return ResponseEntity.status(HttpStatus.OK).body(PatientResponse.fromEntity(patientService.update(cpf, patient)));
+     }
 
     @DeleteMapping("/{cpf}")
     @Operation(summary = "Exclui um paciente por ID")

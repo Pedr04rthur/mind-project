@@ -3,7 +3,7 @@ package com.mindproject.backend.controller.mood;
 import com.mindproject.backend.controller.mood.dto.MoodLogRequest;
 import com.mindproject.backend.domain.entity.Patient;
 import com.mindproject.backend.service.mood.MoodService;
-import com.mindproject.backend.service.mood.PatientService;
+import com.mindproject.backend.service.patient.PatientService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
