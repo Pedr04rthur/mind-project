@@ -58,10 +58,8 @@ export function Login() {
               <HeartPulse size={20} strokeWidth={2.2} />
               <span>MindCare</span>
             </div>
-            <h2 className={styles.formTitle}>Entrar</h2>
-            <p className={styles.formSubtitle}>
-              Acesse com suas credenciais para continuar.
-            </p>
+            <h2 className={styles.formTitle}>Bem-vindo</h2>
+            <p className={styles.formSubtitle}>Faça o login</p>
           </header>
 
           <div className={styles.fieldGroup}>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { HeartPulse, Menu, X, MonitorSmartphone } from "lucide-react";
+import { HeartPulse, Menu, X } from "lucide-react";
 import styles from "./Header.module.css";
 
 const NAV_ITEMS = [
@@ -38,11 +38,6 @@ export function Header() {
         </nav>
 
         <div className={styles.actions}>
-          <button type="button" className={styles.pillButton}>
-            <MonitorSmartphone size={16} strokeWidth={2} aria-hidden="true" />
-            <span>Ver versão vertical</span>
-          </button>
-
           <button
             type="button"
             className={styles.menuToggle}
@@ -72,11 +67,6 @@ export function Header() {
               {item.label}
             </NavLink>
           ))}
-
-          <button type="button" className={styles.mobilePillButton}>
-            <MonitorSmartphone size={16} strokeWidth={2} aria-hidden="true" />
-            <span>Ver versão vertical</span>
-          </button>
         </div>
       )}
     </header>
