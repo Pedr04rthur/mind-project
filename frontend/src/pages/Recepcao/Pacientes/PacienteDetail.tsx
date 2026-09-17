@@ -4,10 +4,6 @@ import {
   ArrowLeft,
   Pencil,
   Trash2,
-  User,
-  Phone,
-  Mail,
-  MapPin,
   AlertCircle,
   ShieldCheck,
 } from "lucide-react";
@@ -137,10 +133,7 @@ export function PacienteDetail() {
 
       <div className={styles.grid}>
         <article className={styles.card}>
-          <header className={styles.cardHeader}>
-            <User size={18} strokeWidth={2} />
-            <h2 className={styles.cardTitle}>Dados pessoais</h2>
-          </header>
+          <h2 className={styles.cardTitle}>Dados pessoais</h2>
           <dl className={styles.infoList}>
             <div className={styles.infoRow}>
               <dt className={styles.infoLabel}>Nome completo</dt>
@@ -154,27 +147,18 @@ export function PacienteDetail() {
         </article>
 
         <article className={styles.card}>
-          <header className={styles.cardHeader}>
-            <Phone size={18} strokeWidth={2} />
-            <h2 className={styles.cardTitle}>Contato</h2>
-          </header>
+          <h2 className={styles.cardTitle}>Contato</h2>
           <dl className={styles.infoList}>
             <div className={styles.infoRow}>
-              <dt className={styles.infoLabel}>
-                <Phone size={14} /> Telefone
-              </dt>
+              <dt className={styles.infoLabel}>Telefone</dt>
               <dd className={styles.infoValue}>{paciente.telefone || "—"}</dd>
             </div>
             <div className={styles.infoRow}>
-              <dt className={styles.infoLabel}>
-                <Mail size={14} /> E-mail
-              </dt>
+              <dt className={styles.infoLabel}>E-mail</dt>
               <dd className={styles.infoValue}>{paciente.email}</dd>
             </div>
             <div className={styles.infoRow}>
-              <dt className={styles.infoLabel}>
-                <MapPin size={14} /> Endereço
-              </dt>
+              <dt className={styles.infoLabel}>Endereço</dt>
               <dd className={styles.infoValue}>{paciente.endereco || "—"}</dd>
             </div>
           </dl>
