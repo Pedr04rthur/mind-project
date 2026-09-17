@@ -1,4 +1,4 @@
-package com.mindproject.backend.service.mood;
+package com.mindproject.backend.service.patient;
 
 import com.mindproject.backend.controller.patient.dto.PatientRequest;
 import com.mindproject.backend.domain.entity.Patient;
@@ -23,6 +23,7 @@ public class PatientService {
         if (repository.existsByCpf(request.cpf())) {
             throw new BadRequestException("Já existe um paciente cadastrado com este CPF");
         }
+
         if (repository.existsByEmail(request.email())) {
             throw new BadRequestException("Já existe um paciente cadastrado com este E-mail");
         }
@@ -39,12 +40,23 @@ public class PatientService {
         repository.save(patient);
     }
 
-    // @Transactional
-    // public Patient update(Long id, ) {
+     @Transactional
+     public Patient update(String cpf, Patient newPatient) {
 
-    //     Patient patient =
+         if (!repository.existsByCpf(cpf)) {
+             throw new BadRequestException("Não existe paciente cadastrado com este CPF");
+         }
 
-    // }
+         if (repository.existsByCpf(newPatient.getCpf())) {
+             throw new BadRequestException("Já existe um paciente cadastrado com este CPF");
+         }
+
+         if (repository.existsByEmail(newPatient.getEmail())) {
+             throw new BadRequestException("Já existe um paciente cadastrado com este E-mail");
+         }
+
+         return repository.save(newPatient);
+     }
 
     @Transactional
     public void delete(String cpf) {

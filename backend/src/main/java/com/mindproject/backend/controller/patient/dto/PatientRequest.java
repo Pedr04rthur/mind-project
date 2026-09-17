@@ -1,5 +1,6 @@
 package com.mindproject.backend.controller.patient.dto;
 
+import com.mindproject.backend.domain.entity.Patient;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -36,4 +37,8 @@ public record PatientRequest(
         @Size(min = 6, message = "A senha deve conter no mínimo 6 caracteres")
         String password
 ) {
+
+        public Patient toEntity() {
+                return new Patient(cpf, name, phone, email, address, password);
+        }
 }
