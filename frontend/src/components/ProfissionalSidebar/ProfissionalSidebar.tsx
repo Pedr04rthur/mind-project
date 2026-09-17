@@ -5,6 +5,7 @@ import {
   CalendarCheck,
   FileText,
   ClipboardList,
+  UserCog,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -19,6 +20,7 @@ const MENU_ITEMS = [
   { to: "/profissional/consultas", label: "Consultas", icon: CalendarCheck },
   { to: "/profissional/prescricoes", label: "Prescrições", icon: FileText },
   { to: "/profissional/prontuarios", label: "Prontuários", icon: ClipboardList },
+  { to: "/profissional/perfil", label: "Meu perfil", icon: UserCog },
 ];
 
 export function ProfissionalSidebar() {

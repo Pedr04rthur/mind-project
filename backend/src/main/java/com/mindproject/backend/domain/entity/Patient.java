@@ -7,9 +7,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 public class Patient {
 
@@ -39,8 +41,4 @@ public class Patient {
         this.address = address;
         this.password = password;
     }
-
-    
-
-
 }

@@ -5,7 +5,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { RegistroHumor } from "../types/humor";
+import { api, ApiError } from "../services/api";
+import { cpfToApi, humorToApi } from "../services/adapters";
+import { getDataDiaAtual } from "../utils/dates";
+import type { RegistroHumor, HumorType } from "../types/humor";
 
 const STORAGE_KEY = "mindcare:registros-humor";
 
@@ -15,7 +18,11 @@ interface RegistrosHumorContextValue {
     cpfPaciente: string,
     dataDia: string
   ) => RegistroHumor | undefined;
-  upsert: (registro: RegistroHumor) => void;
+  registrar: (
+    cpfPaciente: string,
+    humor: HumorType,
+    comentario: string | null
+  ) => Promise<RegistroHumor>;
   removerDoDia: (cpfPaciente: string, dataDia: string) => void;
 }
 
@@ -49,14 +56,38 @@ export function RegistrosHumorProvider({ children }: { children: ReactNode }) {
       (r) => r.cpfPaciente === cpfPaciente && r.dataDia === dataDia
     );
 
-  const upsert = (registro: RegistroHumor) => {
-    setRegistros((atual) => {
-      const existe = atual.some((r) => r.id === registro.id);
-      if (existe) {
-        return atual.map((r) => (r.id === registro.id ? registro : r));
+  const registrar = async (
+    cpfPaciente: string,
+    humor: HumorType,
+    comentario: string | null
+  ): Promise<RegistroHumor> => {
+    try {
+      await api.mood.register({
+        patientCpf: cpfToApi(cpfPaciente),
+        moodLevel: humorToApi(humor),
+        comment: comentario,
+      });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 400) {
+        // Backend já rejeitou por duplicidade do dia — propaga com a mesma msg
+        throw err;
       }
-      return [registro, ...atual];
-    });
+      throw err;
+    }
+
+    const agora = new Date();
+    const dataDia = getDataDiaAtual(agora);
+    const registro: RegistroHumor = {
+      id: `${cpfPaciente}-${dataDia}`,
+      cpfPaciente,
+      humor,
+      comentario,
+      criadoEm: agora.toISOString(),
+      dataDia,
+    };
+
+    setRegistros((atual) => [registro, ...atual]);
+    return registro;
   };
 
   const removerDoDia = (cpfPaciente: string, dataDia: string) => {
@@ -69,7 +100,7 @@ export function RegistrosHumorProvider({ children }: { children: ReactNode }) {
 
   return (
     <RegistrosHumorContext.Provider
-      value={{ registros, getRegistroDoDia, upsert, removerDoDia }}
+      value={{ registros, getRegistroDoDia, registrar, removerDoDia }}
     >
       {children}
     </RegistrosHumorContext.Provider>

@@ -19,15 +19,12 @@ public class PatientService {
 
     @Transactional
     public void create(PatientRequest request) {
-
         if (repository.existsByCpf(request.cpf())) {
             throw new BadRequestException("Já existe um paciente cadastrado com este CPF");
         }
-
         if (repository.existsByEmail(request.email())) {
             throw new BadRequestException("Já existe um paciente cadastrado com este E-mail");
         }
-
         Patient patient = new Patient(
                 request.cpf(),
                 request.name(),
@@ -36,27 +33,34 @@ public class PatientService {
                 request.address(),
                 request.password()
         );
-
         repository.save(patient);
     }
 
-     @Transactional
-     public Patient update(String cpf, Patient newPatient) {
+    @Transactional
+    public Patient update(String cpf, Patient newPatient) {
+        Patient atual = findByCPF(cpf);
 
-         if (!repository.existsByCpf(cpf)) {
-             throw new BadRequestException("Não existe paciente cadastrado com este CPF");
-         }
+        // Só valida unicidade se o CPF realmente mudou
+        if (!atual.getCpf().equals(newPatient.getCpf())
+                && repository.existsByCpf(newPatient.getCpf())) {
+            throw new BadRequestException("Já existe um paciente cadastrado com este CPF");
+        }
 
-         if (repository.existsByCpf(newPatient.getCpf())) {
-             throw new BadRequestException("Já existe um paciente cadastrado com este CPF");
-         }
+        // Só valida unicidade se o e-mail realmente mudou
+        if (!atual.getEmail().equals(newPatient.getEmail())
+                && repository.existsByEmail(newPatient.getEmail())) {
+            throw new BadRequestException("Já existe um paciente cadastrado com este E-mail");
+        }
 
-         if (repository.existsByEmail(newPatient.getEmail())) {
-             throw new BadRequestException("Já existe um paciente cadastrado com este E-mail");
-         }
+        // Atualiza os campos do paciente existente (mantém o mesmo id)
+        atual.setName(newPatient.getName());
+        atual.setPhone(newPatient.getPhone());
+        atual.setEmail(newPatient.getEmail());
+        atual.setAddress(newPatient.getAddress());
+        atual.setPassword(newPatient.getPassword());
 
-         return repository.save(newPatient);
-     }
+        return repository.save(atual);
+    }
 
     @Transactional
     public void delete(String cpf) {
@@ -69,7 +73,7 @@ public class PatientService {
     }
 
     public Patient findByCPF(String cpf) {
-        return repository.findByCpf(cpf).orElseThrow(() -> new NotFoundException("CPF não encontrado"));
+        return repository.findByCpf(cpf)
+                .orElseThrow(() -> new NotFoundException("CPF não encontrado"));
     }
-
 }
