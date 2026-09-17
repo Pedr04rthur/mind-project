@@ -1,0 +1,323 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  overflow-y: auto;
+  animation: fadeIn 150ms ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  width: 100%;
+  max-width: 640px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: auto;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 1.75rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.modalSubtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.2rem;
+  line-height: 1.5;
+}
+
+.closeButton {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.closeButton:hover {
+  background-color: #f3f4f6;
+  color: #0f172a;
+}
+
+.patientBox {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 1.75rem;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.patientAvatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #dcfce7;
+  color: #166534;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.patientInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.patientName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.patientMeta {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.75rem;
+  gap: 1.25rem;
+}
+
+.fieldset {
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #16a34a;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.15rem;
+}
+
+.priorityGroup {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+.priorityOption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 0.9rem 0.85rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 11px;
+  background-color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background-color 0.18s ease,
+    transform 0.12s ease, box-shadow 0.18s ease;
+}
+
+.priorityOption:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+}
+
+.priorityIconWrap {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.priorityTitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.priorityDesc {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Cores por prioridade */
+
+.priority_azul .priorityIconWrap { background-color: #e0f2fe; color: #0369a1; }
+.priority_azul.priorityActive {
+  border-color: #0ea5e9;
+  background-color: #f0f9ff;
+  box-shadow: 0 0 0 1px #0ea5e9 inset;
+}
+
+.priority_ambar .priorityIconWrap { background-color: #fef3c7; color: #b45309; }
+.priority_ambar.priorityActive {
+  border-color: #f59e0b;
+  background-color: #fffbeb;
+  box-shadow: 0 0 0 1px #f59e0b inset;
+}
+
+.priority_vermelho .priorityIconWrap { background-color: #fee2e2; color: #b91c1c; }
+.priority_vermelho.priorityActive {
+  border-color: #dc2626;
+  background-color: #fef2f2;
+  box-shadow: 0 0 0 1px #dc2626 inset;
+}
+
+.textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  color: #111827;
+  background-color: #ffffff;
+  font-family: inherit;
+  line-height: 1.55;
+  resize: vertical;
+  min-height: 110px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.textarea::placeholder {
+  color: #9ca3af;
+}
+
+.textarea:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.counter {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.warningBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid #fecaca;
+  background-color: #fef2f2;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  animation: fadeIn 160ms ease;
+}
+
+.errorBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #fecaca;
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-radius: 9px;
+  font-size: 0.875rem;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 0.5rem;
+}
+
+.secondaryButton {
+  padding: 0.65rem 1.1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 9px;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.secondaryButton:hover {
+  background-color: #f9fafb;
+}
+
+.primaryButton {
+  padding: 0.65rem 1.25rem;
+  border: none;
+  border-radius: 9px;
+  background-color: #16a34a;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.primaryButton:hover {
+  background-color: #15803d;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.22);
+}
+
+@media (max-width: 640px) {
+  .priorityGroup {
+    grid-template-columns: 1fr;
+  }
+
+  .modalHeader,
+  .form,
+  .patientBox {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}

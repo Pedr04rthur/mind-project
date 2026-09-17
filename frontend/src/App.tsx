@@ -17,8 +17,8 @@ import { PacientesList } from "./pages/Recepcao/Pacientes/PacientesList";
 import { PacienteDetail } from "./pages/Recepcao/Pacientes/PacienteDetail";
 import { ProfissionaisList } from "./pages/Recepcao/Profissionais/ProfissionaisList";
 import { ProfissionalDetail } from "./pages/Recepcao/Profissionais/ProfissionalDetail";
+import { TriagemList } from "./pages/Recepcao/Triagem/TriagemList";
 import {
-  TriagemPage,
   AgendaPage,
   AuditoriaPage,
 } from "./pages/Recepcao/Placeholders/RecepcaoPlaceholders";
@@ -66,7 +66,7 @@ function App() {
                   path="profissionais/:cpf"
                   element={<ProfissionalDetail />}
                 />
-                <Route path="triagem" element={<TriagemPage />} />
+                <Route path="triagem" element={<TriagemList />} />
                 <Route path="agenda" element={<AgendaPage />} />
                 <Route path="auditoria" element={<AuditoriaPage />} />
               </Route>
