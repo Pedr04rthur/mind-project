@@ -25,6 +25,7 @@ import {
 
 import { ProfissionalLayout } from "./layouts/ProfissionalLayout/ProfissionalLayout";
 import { PacientesClinicos } from "./pages/Profissional/Pacientes/PacientesClinicos";
+import { MeuPerfil } from "./pages/Profissional/Perfil/MeuPerfil";
 import {
   ConsultasClinicasPage,
   PrescricoesClinicasPage,
@@ -85,6 +86,7 @@ function App() {
                   element={<PrescricoesClinicasPage />}
                 />
                 <Route path="prontuarios" element={<ProntuariosPage />} />
+                <Route path="perfil" element={<MeuPerfil />} />
               </Route>
             </Route>
           </Routes>
