@@ -1,7 +1,10 @@
 package com.mindproject.backend.domain.entity;
 
+import com.mindproject.backend.domain.sex.Sex;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Patient {
+public class Professional {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +23,9 @@ public class Patient {
     @Column(length = 11, unique = true)
     private String cpf;
 
-    private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Sex sex;
 
     private String phone;
 
@@ -29,25 +34,31 @@ public class Patient {
 
     private String address;
 
+    private String crp;
+
+    private String specialty;
+
     private String password;
 
-    public Patient(String cpf, String name, String phone, String email, String address, String password) {
+    public Professional(String cpf, Sex sex, String phone, String email, String address, String crp, String specialty, String password) {
         this.cpf = cpf;
-        this.name = name;
+        this.sex = sex;
         this.phone = phone;
         this.email = email;
         this.address = address;
+        this.crp = crp;
+        this.specialty = specialty;
         this.password = password;
     }
 
-    public void update(String cpf, String name, String phone, String email, String address, String password) {
+    public void update(String cpf, Sex sex, String phone, String email, String address, String crp, String specialty, String password) {
         this.cpf = cpf;
-        this.name = name;
+        this.sex = sex;
         this.phone = phone;
         this.email = email;
         this.address = address;
+        this.crp = crp;
+        this.specialty = specialty;
         this.password = password;
     }
-
-
 }

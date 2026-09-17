@@ -40,23 +40,30 @@ public class PatientService {
         repository.save(patient);
     }
 
-     @Transactional
-     public Patient update(String cpf, Patient newPatient) {
+    @Transactional
+    public Patient update(String cpf, PatientRequest request) {
 
-         if (!repository.existsByCpf(cpf)) {
-             throw new BadRequestException("Não existe paciente cadastrado com este CPF");
-         }
+        Patient patient = findByCPF(cpf);
 
-         if (repository.existsByCpf(newPatient.getCpf())) {
-             throw new BadRequestException("Já existe um paciente cadastrado com este CPF");
-         }
+        if (repository.existsByCpfAndIdNot(request.cpf(), patient.getId())) {
+            throw new BadRequestException("Já existe um paciente cadastrado com este CPF");
+        }
 
-         if (repository.existsByEmail(newPatient.getEmail())) {
-             throw new BadRequestException("Já existe um paciente cadastrado com este E-mail");
-         }
+        if (repository.existsByEmailAndIdNot(request.email(), patient.getId())) {
+            throw new BadRequestException("Já existe um paciente cadastrado com este E-mail");
+        }
 
-         return repository.save(newPatient);
-     }
+        patient.update(
+                request.cpf(),
+                request.name(),
+                request.phone(),
+                request.email(),
+                request.address(),
+                request.password()
+        );
+
+        return repository.save(patient);
+    }
 
     @Transactional
     public void delete(String cpf) {

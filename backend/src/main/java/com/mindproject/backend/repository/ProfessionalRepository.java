@@ -1,22 +1,21 @@
 package com.mindproject.backend.repository;
 
-import java.util.Optional;
-
+import com.mindproject.backend.domain.entity.Professional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.mindproject.backend.domain.entity.Patient;
+import java.util.Optional;
 
-@Repository 
-public interface PatientRepository extends JpaRepository<Patient, Long> {
+@Repository
+public interface ProfessionalRepository extends JpaRepository<Professional, Long> {
 
-    Optional<Patient> findByCpf(String cpf);
+    Optional<Professional> findByCpf(String cpf);
 
     boolean existsByCpf(String cpf);
 
     boolean existsByEmail(String email);
 
-    boolean existsByEmailAndIdNot(String email, Long id);
-
     boolean existsByCpfAndIdNot(String cpf, Long id);
+
+    boolean existsByEmailAndIdNot(String email, Long id);
 }
