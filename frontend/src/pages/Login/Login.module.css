@@ -1,67 +1,105 @@
+/* ============================================================
+   Layout base (desktop)
+   Esquerda: imagem com overlay escuro (~66% da tela)
+   Direita: formulário alinhado à esquerda do painel
+   ============================================================ */
+
 .page {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
+  background-color: #ffffff;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
 }
 
+/* ---------- Painel da marca (esquerda) ---------- */
+
 .brandPanel {
-  background: linear-gradient(140deg, #16a34a 0%, #15803d 55%, #166534 100%);
-  color: #ffffff;
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 4rem;
+  color: #ffffff;
+  overflow: hidden;
+  background-image: url("../../assets/images/mindcare.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.brandPanel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    140deg,
+    rgba(8, 20, 12, 0.82) 0%,
+    rgba(11, 46, 30, 0.7) 50%,
+    rgba(15, 23, 42, 0.88) 100%
+  );
+  z-index: 1;
 }
 
 .brandContent {
-  max-width: 420px;
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .brandMark {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  font-size: 1.125rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-family: "Archivo Black", "Inter", sans-serif;
+  font-size: 1.375rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .brandTitle {
-  font-size: 2.25rem;
-  font-weight: 700;
-  line-height: 1.2;
+  font-family: "Archivo Black", "Inter", sans-serif;
+  font-size: 3.5rem;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
 }
 
 .brandSubtitle {
-  font-size: 1rem;
+  font-family: "Inter", sans-serif;
+  font-size: 1.0625rem;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.85);
+  max-width: 480px;
 }
+
+/* ---------- Painel do formulário (direita) ---------- */
 
 .formPanel {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 3rem 2rem;
+  justify-content: flex-start;
+  padding: 3rem 2.5rem 3rem 3.5rem;
   background-color: #ffffff;
 }
 
 .form {
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.4rem;
 }
 
 .formHeader {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .mobileBrand {
@@ -69,20 +107,26 @@
   align-items: center;
   gap: 0.5rem;
   color: #16a34a;
-  font-weight: 700;
-  font-size: 0.9375rem;
+  font-family: "Archivo Black", "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
   margin-bottom: 0.75rem;
 }
 
 .formTitle {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #111827;
+  font-family: "Archivo Black", "Inter", sans-serif;
+  font-size: 2.25rem;
+  font-weight: 400;
+  color: #0a7218;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .formSubtitle {
-  font-size: 0.9375rem;
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
   color: #6b7280;
+  margin-top: 0.15rem;
 }
 
 .fieldGroup {
@@ -92,6 +136,7 @@
 }
 
 .label {
+  font-family: "Inter", sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   color: #374151;
@@ -105,17 +150,23 @@
 
 .inputIcon {
   position: absolute;
-  left: 0.85rem;
+  left: 0.9rem;
   color: #9ca3af;
   pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.inputWrapper:focus-within .inputIcon {
+  color: #16a34a;
 }
 
 .input {
   width: 100%;
-  padding: 0.75rem 2.75rem 0.75rem 2.5rem;
+  padding: 0.9rem 2.75rem 0.9rem 2.7rem;
   border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
-  font-size: 0.9375rem;
+  border-radius: 12px;
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
   color: #111827;
   background-color: #ffffff;
   outline: none;
@@ -137,12 +188,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
   color: #6b7280;
+  cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
@@ -152,23 +204,27 @@
 }
 
 .error {
+  font-family: "Inter", sans-serif;
   font-size: 0.875rem;
   color: #dc2626;
   background-color: #fef2f2;
   border: 1px solid #fecaca;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 0.6rem 0.85rem;
 }
 
 .submitButton {
-  padding: 0.85rem 1.5rem;
+  width: 100%;
+  padding: 0.9rem 1.5rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 999px;
   background-color: #16a34a;
   color: #ffffff;
+  font-family: "Inter", sans-serif;
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.01em;
+  cursor: pointer;
   transition:
     background-color 0.2s ease,
     box-shadow 0.2s ease,
@@ -177,11 +233,16 @@
 
 .submitButton:hover:not(:disabled) {
   background-color: #15803d;
-  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.28);
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.32);
 }
 
 .submitButton:active:not(:disabled) {
   transform: translateY(1px);
+}
+
+.submitButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.28);
 }
 
 .submitButton:disabled {
@@ -190,27 +251,99 @@
 }
 
 .helper {
+  font-family: "Inter", sans-serif;
   font-size: 0.8125rem;
   color: #9ca3af;
-  text-align: center;
+  text-align: left;
   line-height: 1.5;
 }
+
+/* ============================================================
+   Tablet / Mobile (≤ 900px)
+   ============================================================ */
 
 @media (max-width: 900px) {
   .page {
     grid-template-columns: 1fr;
+    position: relative;
+    background-image: url("../../assets/images/mindcare.webp");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .page::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      160deg,
+      rgba(8, 20, 12, 0.78) 0%,
+      rgba(15, 23, 42, 0.82) 100%
+    );
+    z-index: 0;
   }
 
   .brandPanel {
     display: none;
   }
 
+  .formPanel {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    padding: 1.5rem;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form {
+    background-color: #ffffff;
+    padding: 2rem 1.75rem;
+    border-radius: 18px;
+    box-shadow:
+      0 24px 48px rgba(0, 0, 0, 0.35),
+      0 2px 8px rgba(0, 0, 0, 0.15);
+    max-width: 420px;
+    width: 100%;
+  }
+
   .mobileBrand {
     display: inline-flex;
   }
 
+  .formTitle {
+    font-size: 1.75rem;
+  }
+}
+
+/* ============================================================
+   Mobile pequeno (≤ 480px)
+   ============================================================ */
+
+@media (max-width: 480px) {
   .formPanel {
-    padding: 2rem 1.5rem;
-    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .form {
+    padding: 1.75rem 1.5rem;
+    border-radius: 16px;
+  }
+
+  .formTitle {
+    font-size: 1.5rem;
+  }
+
+  .input {
+    padding: 0.8rem 2.5rem 0.8rem 2.55rem;
+    font-size: 0.95rem;
+  }
+
+  .submitButton {
+    padding: 0.85rem 1.25rem;
+    font-size: 0.9375rem;
   }
 }
