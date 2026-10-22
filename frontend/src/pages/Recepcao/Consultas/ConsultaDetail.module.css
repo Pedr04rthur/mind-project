@@ -1,0 +1,63 @@
+.page { width: 100%; max-width: 900px; margin: 0 auto; padding: 2rem 2rem 3rem; display: flex; flex-direction: column; gap: 1.25rem; font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.backButton { display: inline-flex; align-items: center; gap: 0.4rem; align-self: flex-start; padding: 0.5rem 0.75rem; border: none; border-radius: 10px; background: transparent; color: #6b7280; font-family: inherit; font-size: 0.8125rem; font-weight: 500; cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease; }
+.backButton:hover { background-color: #f3f4f6; color: #0f172a; transform: translateX(-2px); }
+.backButton:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.25); }
+
+.pageHeader { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+.titleIcon { width: 48px; height: 48px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 14px; background-color: #f0fdf4; border: 1px solid #dcfce7; color: #16a34a; }
+.headerText { display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }
+.title { font-size: 1.625rem; font-weight: 700; color: #0f172a; letter-spacing: -0.02em; margin: 0; line-height: 1.15; }
+.meta { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.idChip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.75rem; font-weight: 600; color: #6b7280; background-color: #f3f4f6; border: 1px solid #e5e7eb; padding: 0.15rem 0.55rem; border-radius: 999px; }
+.statusBadge { display: inline-flex; align-items: center; padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; border: 1px solid transparent; }
+.badgeAgendada { background-color: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+.badgeCancelada { background-color: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.badgeConcluida { background-color: #f0fdf4; color: #166534; border-color: #dcfce7; }
+
+.dateCard { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0; border-radius: 16px; }
+.dateIcon { width: 48px; height: 48px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; background-color: #ffffff; color: #16a34a; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.15); }
+.dateLabel { display: block; font-size: 1.125rem; font-weight: 700; color: #166534; text-transform: capitalize; letter-spacing: -0.01em; }
+.dateHora { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.3rem; font-size: 0.9375rem; font-weight: 600; color: #15803d; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.card { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.1rem; box-shadow: 0 1px 2px rgba(17, 24, 39, 0.03); }
+.cardHeader { display: flex; align-items: center; gap: 0.5rem; color: #16a34a; padding-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9; }
+.cardTitle { font-size: 0.8125rem; font-weight: 700; color: #0f172a; letter-spacing: 0.05em; text-transform: uppercase; margin: 0; }
+
+.infoList { display: flex; flex-direction: column; gap: 0.95rem; margin: 0; }
+.infoRow { display: flex; flex-direction: column; gap: 0.25rem; }
+.infoLabel { font-size: 0.75rem; font-weight: 500; color: #9ca3af; letter-spacing: 0.02em; }
+.infoValue { margin: 0; font-size: 0.9375rem; color: #111827; font-weight: 500; line-height: 1.5; word-break: break-word; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.875rem; color: #4b5563; }
+.specialtyBadge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 8px; background-color: #f5f3ff; color: #6d28d9; border: 1px solid #ede9fe; font-size: 0.8125rem; font-weight: 500; }
+
+.historicoBox { padding: 1.1rem 1.15rem; border-radius: 12px; background-color: #f9fafb; border: 1px dashed #e5e7eb; min-height: 90px; display: flex; align-items: center; }
+.historicoText { font-size: 0.875rem; color: #9ca3af; line-height: 1.6; margin: 0; font-style: italic; }
+
+.actions { display: flex; justify-content: flex-end; gap: 0.6rem; padding-top: 0.5rem; }
+.secondaryButton { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.75rem 1.25rem; border: 1.5px solid #e5e7eb; border-radius: 12px; background-color: #ffffff; color: #374151; font-family: inherit; font-size: 0.9375rem; font-weight: 500; cursor: pointer; transition: background-color 0.15s ease, border-color 0.15s ease; }
+.secondaryButton:hover { background-color: #f9fafb; border-color: #d1d5db; }
+.dangerButton { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.75rem 1.25rem; border: none; border-radius: 12px; background-color: #dc2626; color: #ffffff; font-family: inherit; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background-color 0.15s ease, box-shadow 0.15s ease; }
+.dangerButton:hover { background-color: #b91c1c; box-shadow: 0 6px 16px rgba(220, 38, 38, 0.25); }
+
+.lgpdNote { display: flex; align-items: center; gap: 0.55rem; padding: 0.85rem 1.1rem; border: 1px solid #dcfce7; background-color: #f0fdf4; color: #166534; border-radius: 14px; font-size: 0.8125rem; line-height: 1.5; }
+
+.statePage { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 5rem 2rem; text-align: center; color: #6b7280; min-height: calc(100vh - 72px); font-family: "Inter", sans-serif; }
+.stateTitle { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0; }
+.primaryButton { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; border: none; border-radius: 12px; background-color: #16a34a; color: #ffffff; font-family: inherit; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background-color 0.15s ease, box-shadow 0.15s ease; }
+.primaryButton:hover { background-color: #15803d; box-shadow: 0 6px 16px rgba(22, 163, 74, 0.25); }
+.spinning { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 200; padding: 0.85rem 1.25rem; border-radius: 12px; background-color: #ffffff; border: 1px solid #dcfce7; color: #166534; font-size: 0.9375rem; font-weight: 500; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2), 0 4px 12px rgba(15, 23, 42, 0.1); animation: toastIn 260ms ease; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+@media (max-width: 768px) {
+  .page { padding: 1.5rem 1rem 2rem; }
+  .grid { grid-template-columns: 1fr; }
+  .title { font-size: 1.375rem; }
+  .dateLabel { font-size: 1rem; }
+  .actions { flex-direction: column-reverse; }
+  .secondaryButton, .dangerButton { width: 100%; justify-content: center; }
+  .toast { bottom: 1rem; left: 1rem; right: 1rem; transform: none; }
+}

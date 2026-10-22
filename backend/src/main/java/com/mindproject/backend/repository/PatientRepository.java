@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.mindproject.backend.domain.entity.Patient;
 
-@Repository 
+@Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     Optional<Patient> findByCpf(String cpf);

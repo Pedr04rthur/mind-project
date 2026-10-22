@@ -3,6 +3,7 @@ import {
   Users,
   ClipboardCheck,
   Calendar,
+  CalendarRange,
   Stethoscope,
   ShieldCheck,
   LogOut,
@@ -17,6 +18,7 @@ const MENU_ITEMS = [
   { to: "/recepcao/pacientes", label: "Pacientes", icon: Users },
   { to: "/recepcao/triagem", label: "Triagem", icon: ClipboardCheck },
   { to: "/recepcao/agenda", label: "Agenda", icon: Calendar },
+  { to: "/recepcao/consultas", label: "Consultas", icon: CalendarRange },
   { to: "/recepcao/profissionais", label: "Profissionais", icon: Stethoscope },
   { to: "/recepcao/auditoria", label: "Auditoria LGPD", icon: ShieldCheck },
 ];

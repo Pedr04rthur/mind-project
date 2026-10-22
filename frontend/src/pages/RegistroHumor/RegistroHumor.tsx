@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { HumorCard } from "../../components/HumorCard/HumorCard";
 import { RegistroHojeCard } from "./RegistroHojeCard";
+import { EditarHumorModal } from "./EditarHumorModal";
 import { useRegistrosHumor } from "../../contexts/RegistrosHumorContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { getDataDiaAtual } from "../../utils/dates";
@@ -11,13 +13,16 @@ import styles from "./RegistroHumor.module.css";
 const MAX_COMENTARIO = 500;
 
 export function RegistroHumor() {
+  const navigate = useNavigate();
   const { usuario } = useAuth();
-  const { getRegistroDoDia, registrar, removerDoDia } = useRegistrosHumor();
+  const { getRegistroDoDia, registrar, editar, removerDoDia } =
+    useRegistrosHumor();
 
   const [humor, setHumor] = useState<HumorType | null>(null);
   const [comentario, setComentario] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [editando, setEditando] = useState(false);
 
   const cpfPaciente = usuario?.cpf ?? "";
   const dataDia = getDataDiaAtual();
@@ -51,6 +56,15 @@ export function RegistroHumor() {
     }
   };
 
+  const handleSalvarEdicao = async (
+    novoHumor: HumorType,
+    novoComentario: string | null
+  ) => {
+    if (!cpfPaciente) return;
+    await editar(cpfPaciente, dataDia, novoHumor, novoComentario);
+    setEditando(false);
+  };
+
   const handleResetar = () => {
     if (!cpfPaciente) return;
     removerDoDia(cpfPaciente, dataDia);
@@ -77,7 +91,12 @@ export function RegistroHumor() {
         </section>
 
         {registroHoje ? (
-          <RegistroHojeCard registro={registroHoje} onResetar={handleResetar} />
+          <RegistroHojeCard
+            registro={registroHoje}
+            onEditar={() => setEditando(true)}
+            onVerHistorico={() => navigate("/historico")}
+            onResetar={handleResetar}
+          />
         ) : (
           <form className={styles.form} onSubmit={handleSubmit} noValidate>
             <div className={styles.cardsGroup}>
@@ -136,6 +155,14 @@ export function RegistroHumor() {
           </form>
         )}
       </div>
+
+      {editando && registroHoje && (
+        <EditarHumorModal
+          registro={registroHoje}
+          onClose={() => setEditando(false)}
+          onSave={handleSalvarEdicao}
+        />
+      )}
     </main>
   );
 }
