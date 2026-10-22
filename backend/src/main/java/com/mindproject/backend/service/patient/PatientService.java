@@ -1,6 +1,5 @@
 package com.mindproject.backend.service.patient;
 
-import com.mindproject.backend.controller.patient.dto.PatientRequest;
 import com.mindproject.backend.domain.entity.Patient;
 import com.mindproject.backend.exception.BadRequestException;
 import com.mindproject.backend.exception.NotFoundException;
@@ -18,53 +17,38 @@ public class PatientService {
     private final PatientRepository repository;
 
     @Transactional
-    public void create(PatientRequest request) {
-        if (repository.existsByCpf(request.cpf())) {
+    public void create(String cpf, String name, String phone, String email, String address, String password) {
+        if (repository.existsByCpf(cpf)) {
             throw new BadRequestException("Já existe um paciente cadastrado com este CPF");
         }
-        if (repository.existsByEmail(request.email())) {
+        if (repository.existsByEmail(email)) {
             throw new BadRequestException("Já existe um paciente cadastrado com este E-mail");
         }
-        Patient patient = new Patient(
-                request.cpf(),
-                request.name(),
-                request.phone(),
-                request.email(),
-                request.address(),
-                request.password()
-        );
+        Patient patient = new Patient(cpf, name, phone, email, address, password);
         repository.save(patient);
     }
 
     @Transactional
-    public Patient update(String cpf, Patient newPatient) {
-        Patient atual = findByCPF(cpf);
-
-        // Só valida unicidade se o CPF realmente mudou
-        if (!atual.getCpf().equals(newPatient.getCpf())
-                && repository.existsByCpf(newPatient.getCpf())) {
+    public Patient update(String cpf, String updatedCpf, String name, String phone, String email, String address, String password) {
+        Patient existingPatient = findByCpf(cpf);
+        if (!existingPatient.getCpf().equals(updatedCpf) && repository.existsByCpf(updatedCpf)) {
             throw new BadRequestException("Já existe um paciente cadastrado com este CPF");
         }
-
-        // Só valida unicidade se o e-mail realmente mudou
-        if (!atual.getEmail().equals(newPatient.getEmail())
-                && repository.existsByEmail(newPatient.getEmail())) {
+        if (!existingPatient.getEmail().equals(email) && repository.existsByEmail(email)) {
             throw new BadRequestException("Já existe um paciente cadastrado com este E-mail");
         }
-
-        // Atualiza os campos do paciente existente (mantém o mesmo id)
-        atual.setName(newPatient.getName());
-        atual.setPhone(newPatient.getPhone());
-        atual.setEmail(newPatient.getEmail());
-        atual.setAddress(newPatient.getAddress());
-        atual.setPassword(newPatient.getPassword());
-
-        return repository.save(atual);
+        existingPatient.setCpf(updatedCpf);
+        existingPatient.setName(name);
+        existingPatient.setPhone(phone);
+        existingPatient.setEmail(email);
+        existingPatient.setAddress(address);
+        existingPatient.setPassword(password);
+        return repository.save(existingPatient);
     }
 
     @Transactional
     public void delete(String cpf) {
-        Patient patient = findByCPF(cpf);
+        Patient patient = findByCpf(cpf);
         repository.delete(patient);
     }
 
@@ -72,8 +56,7 @@ public class PatientService {
         return repository.findAll(pageable);
     }
 
-    public Patient findByCPF(String cpf) {
-        return repository.findByCpf(cpf)
-                .orElseThrow(() -> new NotFoundException("CPF não encontrado"));
+    public Patient findByCpf(String cpf) {
+        return repository.findByCpf(cpf).orElseThrow(() -> new NotFoundException("CPF não encontrado"));
     }
 }
