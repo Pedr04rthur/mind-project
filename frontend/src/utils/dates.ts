@@ -17,3 +17,11 @@ export function formatarHora(iso: string): string {
   const m = String(d.getMinutes()).padStart(2, "0");
   return `${h}:${m}`;
 }
+
+/**
+ * Formato que o backend /schedule espera: DD-MM-YYYY
+ */
+export function toBackendDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-");
+  return `${day}-${month}-${year}`;
+}

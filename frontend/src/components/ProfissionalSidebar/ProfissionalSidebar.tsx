@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 import mindguy from "../../assets/images/mindguy.png";
 import { useState } from "react";
@@ -17,6 +18,7 @@ import styles from "./ProfissionalSidebar.module.css";
 
 const MENU_ITEMS = [
   { to: "/profissional/pacientes", label: "Pacientes", icon: Users },
+  { to: "/profissional/alertas", label: "Alertas", icon: AlertTriangle },
   { to: "/profissional/consultas", label: "Consultas", icon: CalendarCheck },
   { to: "/profissional/prescricoes", label: "Prescrições", icon: FileText },
   { to: "/profissional/prontuarios", label: "Prontuários", icon: ClipboardList },

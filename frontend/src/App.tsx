@@ -7,6 +7,7 @@ import { Login } from "./pages/Login/Login";
 import { SelecionarPerfil } from "./pages/SelecionarPerfil/SelecionarPerfil";
 
 import { RegistroHumor } from "./pages/RegistroHumor/RegistroHumor";
+import { HistoricoHumor } from "./pages/HistoricoHumor/HistoricoHumor";
 import { Consultas } from "./pages/Consultas/Consultas";
 import { Prescricoes } from "./pages/Prescricoes/Prescricoes";
 import { Perfil } from "./pages/Perfil/Perfil";
@@ -18,13 +19,15 @@ import { PacienteDetail } from "./pages/Recepcao/Pacientes/PacienteDetail";
 import { ProfissionaisList } from "./pages/Recepcao/Profissionais/ProfissionaisList";
 import { ProfissionalDetail } from "./pages/Recepcao/Profissionais/ProfissionalDetail";
 import { TriagemList } from "./pages/Recepcao/Triagem/TriagemList";
-import {
-  AgendaPage,
-  AuditoriaPage,
-} from "./pages/Recepcao/Placeholders/RecepcaoPlaceholders";
+import { ConsultaForm } from "./pages/Recepcao/Consultas/ConsultaForm";
+import { ConsultaDetail } from "./pages/Recepcao/Consultas/ConsultaDetail";
+import { ConsultasPeriodo } from "./pages/Recepcao/Consultas/ConsultasPeriodo";
+import { AgendaPage } from "./pages/Recepcao/Agenda/AgendaPage";
+import { AuditoriaPage } from "./pages/Recepcao/Placeholders/RecepcaoPlaceholders";
 
 import { ProfissionalLayout } from "./layouts/ProfissionalLayout/ProfissionalLayout";
 import { PacientesClinicos } from "./pages/Profissional/Pacientes/PacientesClinicos";
+import { AlertasPage } from "./pages/Profissional/Alertas/AlertasPage";
 import { MeuPerfil } from "./pages/Profissional/Perfil/MeuPerfil";
 import {
   ConsultasClinicasPage,
@@ -46,6 +49,7 @@ function App() {
             <Route element={<RequirePerfil permitidos={["PACIENTE"]} />}>
               <Route element={<PatientLayout />}>
                 <Route path="/diario" element={<RegistroHumor />} />
+                <Route path="/historico" element={<HistoricoHumor />} />
                 <Route path="/consultas" element={<Consultas />} />
                 <Route path="/prescricoes" element={<Prescricoes />} />
                 <Route path="/perfil" element={<Perfil />} />
@@ -67,6 +71,9 @@ function App() {
                   element={<ProfissionalDetail />}
                 />
                 <Route path="triagem" element={<TriagemList />} />
+                <Route path="consultas" element={<ConsultasPeriodo />} />
+                <Route path="consultas/nova" element={<ConsultaForm />} />
+                <Route path="consultas/:id" element={<ConsultaDetail />} />
                 <Route path="agenda" element={<AgendaPage />} />
                 <Route path="auditoria" element={<AuditoriaPage />} />
               </Route>
@@ -80,6 +87,7 @@ function App() {
                   element={<Navigate to="/profissional/pacientes" replace />}
                 />
                 <Route path="pacientes" element={<PacientesClinicos />} />
+                <Route path="alertas" element={<AlertasPage />} />
                 <Route path="consultas" element={<ConsultasClinicasPage />} />
                 <Route
                   path="prescricoes"

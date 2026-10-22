@@ -6,6 +6,7 @@ import styles from "./Header.module.css";
 
 const NAV_ITEMS = [
   { to: "/diario", label: "Diário" },
+  { to: "/historico", label: "Histórico" },
   { to: "/consultas", label: "Consultas" },
   { to: "/prescricoes", label: "Prescrições" },
   { to: "/perfil", label: "Perfil" },
