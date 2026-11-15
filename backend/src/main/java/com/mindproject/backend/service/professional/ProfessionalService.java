@@ -2,7 +2,10 @@ package com.mindproject.backend.service.professional;
 
 import com.mindproject.backend.domain.entity.Professional;
 import com.mindproject.backend.exception.NotFoundException;
+import com.mindproject.backend.exception.ConflictException;
+import com.mindproject.backend.repository.ConsultationRepository;
 import com.mindproject.backend.repository.ProfessionalRepository;
+import com.mindproject.backend.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +17,8 @@ import java.util.List;
 public class ProfessionalService {
 
     private final ProfessionalRepository repository;
+    private final ConsultationRepository consultationRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional(readOnly = true)
     public List<Professional> findAll() {
@@ -29,5 +34,17 @@ public class ProfessionalService {
     @Transactional
     public Professional create(String name, String specialty) {
         return repository.save(new Professional(name, specialty));
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Professional professional = findById(id);
+        if (consultationRepository.existsByProfessional_Id(id)) {
+            throw new ConflictException("Professional has related consultations and cannot be deleted");
+        }
+        if (professional.getAccount() != null) {
+            refreshTokenRepository.deleteByAccount_Id(professional.getAccount().getId());
+        }
+        repository.delete(professional);
     }
 }

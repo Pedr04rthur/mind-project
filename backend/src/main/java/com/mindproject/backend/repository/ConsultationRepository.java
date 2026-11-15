@@ -18,6 +18,14 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     @EntityGraph(attributePaths = {"patient", "professional"})
     List<Consultation> findAllByScheduledAtGreaterThanEqualAndScheduledAtLessThanAndStatusOrderByScheduledAtAsc(LocalDateTime start, LocalDateTime end, ConsultationStatus status);
 
+    boolean existsByPatient_Id(Long patientId);
+
+    boolean existsByProfessional_Id(Long professionalId);
+
+    @EntityGraph(attributePaths = {"patient", "professional"})
+    @Query("select c from Consultation c where (c.patient.account.id = :accountId or c.professional.account.id = :accountId) and (:startAt is null or c.scheduledAt >= :startAt) and (:endAt is null or c.scheduledAt < :endAt) order by c.scheduledAt asc")
+    List<Consultation> findAllByAccountIdAndDateRange(@Param("accountId") Long accountId, @Param("startAt") LocalDateTime startAt, @Param("endAt") LocalDateTime endAt);
+
     @Query(value = "select exists (select 1 from consultations where professional_id = :professionalId and scheduled_at = :dateTime and status = 'SCHEDULED')", nativeQuery = true)
     boolean hasConsultation(@Param("professionalId") Long professionalId, @Param("dateTime") LocalDateTime dateTime);
 }

@@ -188,6 +188,35 @@ class ConsultationServiceTest {
     }
 
     @Test
+    void findByAccountIdReturnsAllRelatedConsultationsWhenDatesAreOmitted() {
+        List<Consultation> consultations = List.of(createConsultation());
+        when(consultationRepository.findAllByAccountIdAndDateRange(12L, null, null)).thenReturn(consultations);
+
+        assertSame(consultations, consultationService.findByAccountId(12L, null, null));
+    }
+
+    @Test
+    void findByAccountIdConvertsDateRangeToInclusiveWholeDays() {
+        LocalDate startDate = LocalDate.of(2026, 10, 21);
+        LocalDate endDate = LocalDate.of(2026, 10, 25);
+        LocalDateTime startAt = startDate.atStartOfDay();
+        LocalDateTime endAt = endDate.plusDays(1).atStartOfDay();
+        List<Consultation> consultations = List.of(createConsultation());
+        when(consultationRepository.findAllByAccountIdAndDateRange(12L, startAt, endAt)).thenReturn(consultations);
+
+        assertSame(consultations, consultationService.findByAccountId(12L, startDate, endDate));
+    }
+
+    @Test
+    void findByAccountIdSupportsSingleSidedDateRange() {
+        LocalDate startDate = LocalDate.of(2026, 10, 21);
+        LocalDateTime startAt = startDate.atStartOfDay();
+        when(consultationRepository.findAllByAccountIdAndDateRange(12L, startAt, null)).thenReturn(List.of());
+
+        assertEquals(List.of(), consultationService.findByAccountId(12L, startDate, null));
+    }
+
+    @Test
     void findDetailsReturnsConsultation() {
         Consultation consultation = createConsultation();
         when(consultationRepository.findWithPatientAndProfessionalById(1L)).thenReturn(Optional.of(consultation));

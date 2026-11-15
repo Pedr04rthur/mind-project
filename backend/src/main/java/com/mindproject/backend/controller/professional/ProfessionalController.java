@@ -18,15 +18,17 @@ public class ProfessionalController {
 
     @GetMapping
     public ResponseEntity<List<ProfessionalResponse>> findAll() {
-        return ResponseEntity.ok(
-                professionalService.findAll().stream()
-                        .map(ProfessionalResponse::fromEntity)
-                        .toList()
-        );
+        return ResponseEntity.status(HttpStatus.OK).body(professionalService.findAll().stream().map(ProfessionalResponse::fromEntity).toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProfessionalResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(ProfessionalResponse.fromEntity(professionalService.findById(id)));
+        return ResponseEntity.status(HttpStatus.OK).body(ProfessionalResponse.fromEntity(professionalService.findById(id)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        professionalService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -61,6 +61,13 @@ public class ConsultationService {
     }
 
     @Transactional(readOnly = true)
+    public List<Consultation> findByAccountId(Long accountId, LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startAt = startDate == null ? null : startDate.atStartOfDay();
+        LocalDateTime endAt = endDate == null ? null : endDate.plusDays(1).atStartOfDay();
+        return consultationRepository.findAllByAccountIdAndDateRange(accountId, startAt, endAt);
+    }
+
+    @Transactional(readOnly = true)
     public Consultation findDetails(Long consultationId) {
         return consultationRepository.findWithPatientAndProfessionalById(consultationId).orElseThrow(() -> new NotFoundException("Consultation not found"));
     }

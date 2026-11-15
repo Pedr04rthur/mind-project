@@ -26,6 +26,22 @@ As exceções de aplicação retornam um corpo com este formato:
 
 O handler genérico também captura erros de validação de DTO (`@Valid`), JSON malformado e falhas de conversão de parâmetros. Atualmente, esses casos podem retornar `500`; não há handler específico de validação.
 
+## Autenticação
+
+### `POST /auth/signin`
+
+Recebe `email` e `password`. No sucesso, retorna `200 OK` com `token` e `profile`, além de definir o cookie `refreshToken`.
+
+Os perfis retornados são `PATIENT`, `RECEPTIONIST` e `PROFESSIONAL`. Não existe perfil `ADMIN` no modelo atual.
+
+### `POST /auth/refresh`
+
+Usa o cookie `refreshToken`. No sucesso, retorna um novo `token` e o `profile` da conta, além de atualizar o cookie.
+
+### `POST /auth/logout`
+
+Usa o cookie `refreshToken`, remove o token e expira o cookie. Retorna `200 OK`.
+
 ## Pacientes
 
 ### `POST /patients`
@@ -101,7 +117,7 @@ Exclui o paciente identificado pelo CPF.
 
 **Sucesso:** `204 NO_CONTENT`, sem corpo.
 
-**Erros:** `404 NOT_FOUND` se o paciente não existir; `500 INTERNAL_SERVER_ERROR` para exceções sem handler específico. Restrições de relacionamento do banco podem impedir exclusão se o paciente tiver registros associados.
+**Erros:** `404 NOT_FOUND` se o paciente não existir; `409 CONFLICT` se houver consultas, humores ou triagens associados.
 
 ## Humor
 
@@ -174,6 +190,58 @@ Busca detalhes da consulta.
 
 **Erros:** `404 NOT_FOUND` se a consulta não existir; valor de `id` não numérico pode retornar `500 INTERNAL_SERVER_ERROR` pelo handler genérico.
 
+### Prescrições da consulta
+
+As rotas de prescrição ficam vinculadas à consulta. O paciente e o profissional são obtidos da consulta, sem aceitar CPF ou ID do paciente no corpo.
+
+#### `POST /appointments/{consultationId}/prescriptions`
+
+Cria um rascunho de prescrição. O usuário autenticado deve ser o profissional associado à consulta.
+
+O corpo contém uma lista não vazia `items`. Cada item inclui `medicationName`, `dose`, `route`, `frequency`, `duration` e `quantity`; `activeIngredient`, `concentration`, `pharmaceuticalForm` e instruções individuais são opcionais. A prescrição também aceita `instructions`, `recommendations` e `followUpInstructions`.
+
+**Sucesso:** `201 CREATED`, com o rascunho e seus itens.
+
+#### `GET /appointments/{consultationId}/prescriptions`
+
+Lista prescrições da consulta para o paciente ou profissional associado. Inclui prescrições canceladas no histórico e ordena pela criação mais recente.
+
+#### `GET /appointments/{consultationId}/prescriptions/{prescriptionId}`
+
+Busca uma prescrição da consulta para o paciente ou profissional associado.
+
+#### `PUT /appointments/{consultationId}/prescriptions/{prescriptionId}`
+
+Substitui os itens e as orientações de um rascunho. Somente o profissional associado pode alterar; prescrições emitidas ou canceladas não podem ser editadas.
+
+**Sucesso:** `200 OK`, com a prescrição atualizada.
+
+#### `POST /appointments/{consultationId}/prescriptions/{prescriptionId}/issue`
+
+Emite o registro clínico. Somente o profissional associado pode emitir um rascunho. O registro passa a ser imutável.
+
+**Sucesso:** `204 NO_CONTENT`.
+
+#### `DELETE /appointments/{consultationId}/prescriptions/{prescriptionId}`
+
+Cancela a prescrição, preservando seu conteúdo e histórico. Somente o profissional associado pode cancelar.
+
+**Sucesso:** `204 NO_CONTENT`.
+
+**Erros dessas rotas:** `404 NOT_FOUND` se a consulta ou prescrição não existir, ou se a conta não estiver associada à consulta; `409 CONFLICT` para emitir ou alterar uma consulta cancelada ou para alterar uma prescrição que não esteja em rascunho.
+
+**Limite:** `issue` altera o estado do registro clínico no sistema; não assina nem emite receituário digital oficial ou controlado.
+
+### `GET /appointments`
+
+Lista as consultas associadas ao paciente ou profissional autenticado.
+
+**Parâmetros opcionais de query:** `startDate` e `endDate`, no formato `DD-MM-YYYY`. Os limites são inclusivos; cada data inclui o dia inteiro. Sem datas, lista todas as consultas associadas à conta.
+
+**Autenticação:** token JWT obrigatório; o ID da conta é obtido do `sub` do token.
+
+**Sucesso:** `200 OK`, lista de `ConsultationDetailsResponse` ordenada por horário crescente.
+
 ### `PATCH /appointments/{id}/cancel`
 
 Cancela a consulta.
@@ -222,9 +290,23 @@ Lista consultas agendadas de um dia.
 
 **Regra:** inclui apenas consultas com status `SCHEDULED` cujo horário esteja dentro do dia informado.
 
+## Profissionais
+
+### `GET /professionals`
+
+Lista profissionais e retorna `200 OK` com uma lista de `ProfessionalResponse`.
+
+### `GET /professionals/{id}`
+
+Busca um profissional pelo ID. Retorna `200 OK` ou `404 NOT_FOUND` se não existir.
+
+### `DELETE /professionals/{id}`
+
+Exclui um profissional sem consultas associadas. Retorna `204 NO_CONTENT`, `404 NOT_FOUND` se não existir ou `409 CONFLICT` se houver consultas associadas.
+
 ## Regras ainda não expostas por rotas
 
 - Existe uma entidade `Triage` com paciente, queixa, sintomas, histórico de atendimento em saúde mental, medicações, prioridade, observações, responsável da recepção e data de criação. Não há controller, serviço ou repositório para criar ou consultar triagens.
-- Existem entidade e repositório de `Professional`, mas não há rotas para criar, listar, atualizar ou excluir profissionais.
+- Não há rotas para criar ou atualizar profissionais.
 - O status `COMPLETED` existe, mas não há rota ou serviço para concluir consulta.
-- Não há rotas de alertas, autenticação ou autorização.
+- Não há rotas de alertas.

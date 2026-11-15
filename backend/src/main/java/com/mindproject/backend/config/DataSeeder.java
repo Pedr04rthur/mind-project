@@ -12,6 +12,7 @@ import com.mindproject.backend.repository.ProfessionalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -27,6 +28,7 @@ public class DataSeeder implements CommandLineRunner {
     private final ProfessionalRepository professionalRepository;
     private final ConsultationRepository consultationRepository;
     private final MoodRepository moodRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
@@ -38,9 +40,9 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedPatients() {
         if (patientRepository.count() > 0) return;
-        patientRepository.save(new Patient("52998224725", "Ana Carolina Souza", "83988881122", "ana.souza@exemplo.com", "Rua das Acacias, 120 - Joao Pessoa/PB", "senha123"));
-        patientRepository.save(new Patient("11144477735", "Bruno Tavares de Lima", "83977773344", "bruno.lima@exemplo.com", "Av. Epitacio Pessoa, 800 - Joao Pessoa/PB", "senha123"));
-        patientRepository.save(new Patient("12345678909", "Carla Menezes Ribeiro", "83966665566", "carla.ribeiro@exemplo.com", "Rua do Sol, 45 - Campina Grande/PB", "senha123"));
+        patientRepository.save(new Patient("52998224725", "Ana Carolina Souza", "83988881122", "ana.souza@exemplo.com", "Rua das Acacias, 120 - Joao Pessoa/PB", passwordEncoder.encode("senha123")));
+        patientRepository.save(new Patient("11144477735", "Bruno Tavares de Lima", "83977773344", "bruno.lima@exemplo.com", "Av. Epitacio Pessoa, 800 - Joao Pessoa/PB", passwordEncoder.encode("senha123")));
+        patientRepository.save(new Patient("12345678909", "Carla Menezes Ribeiro", "83966665566", "carla.ribeiro@exemplo.com", "Rua do Sol, 45 - Campina Grande/PB", passwordEncoder.encode("senha123")));
     }
 
     private void seedProfessionals() {
@@ -80,7 +82,6 @@ public class DataSeeder implements CommandLineRunner {
 
         LocalDate hoje = LocalDate.now();
 
-        // Ana: 3 dias seguidos com BAD -> ALERTA ALTO
         Mood ana1 = new Mood(ana, "Dia dificil, ansiedade muito alta", MoodLevel.BAD);
         ana1.setDate(hoje.minusDays(2));
         moodRepository.save(ana1);
@@ -93,7 +94,6 @@ public class DataSeeder implements CommandLineRunner {
         ana3.setDate(hoje);
         moodRepository.save(ana3);
 
-        // Bruno: 1 GOOD + 1 BAD -> ATENCAO MEDIO
         Mood bruno1 = new Mood(bruno, "Dia produtivo, me senti bem", MoodLevel.GOOD);
         bruno1.setDate(hoje.minusDays(1));
         moodRepository.save(bruno1);
@@ -102,7 +102,6 @@ public class DataSeeder implements CommandLineRunner {
         bruno2.setDate(hoje);
         moodRepository.save(bruno2);
 
-        // Carla: 2 GOOD -> SEM ALERTA
         Mood carla1 = new Mood(carla, "Me sentindo bem, dia tranquilo", MoodLevel.GOOD);
         carla1.setDate(hoje.minusDays(1));
         moodRepository.save(carla1);
