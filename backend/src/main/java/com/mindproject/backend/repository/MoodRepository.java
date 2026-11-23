@@ -12,5 +12,6 @@ import java.util.List;
 public interface MoodRepository extends JpaRepository<Mood, Long> {
 
     boolean existsByPatientCpfAndDate(String patientCpf, LocalDate date);
+    boolean existsByPatient_Id(Long patientId);
     List<Mood> findAllByPatientCpf(String patientCpf, Sort sort);
 }

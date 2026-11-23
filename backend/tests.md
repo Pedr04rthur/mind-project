@@ -4,7 +4,7 @@
 
 Os testes de serviço, controller, validação e handler são testes unitários com JUnit 5. Mockito simula os repositórios e serviços que ficam fora da unidade testada. Os testes de controller chamam os métodos diretamente; não sobem um servidor HTTP e não validam o roteamento real do Spring.
 
-`MindprojectApplicationTests.contextLoads` é o teste de contexto preexistente: inicializa a aplicação e confirma que o contexto Spring sobe. A suíte atual tem 52 testes: 51 unitários e esse teste de contexto.
+`MindprojectApplicationTests.contextLoads` inicializa a aplicação e confirma que o contexto Spring sobe. A suíte atual tem 86 testes: 78 unitários, 7 testes de repositório com banco H2 e esse teste de contexto.
 
 Executar com:
 
@@ -12,7 +12,7 @@ Executar com:
 mvn clean test
 ```
 
-## `PatientServiceTest` — 11 casos
+## `PatientServiceTest` — 14 casos
 
 | Caso | Cenário e intenção | Resultado esperado |
 | --- | --- | --- |
@@ -24,6 +24,9 @@ mvn clean test
 | `updateRejectsEmailAlreadyUsedByAnotherPatient` | CPF permanece igual e o novo e-mail já existe. | Lança `BadRequestException`; não salva. |
 | `deleteRemovesExistingPatient` | Paciente existe. | Chama `delete` do repositório com a entidade localizada. |
 | `deleteRejectsMissingPatient` | CPF não encontrado. | Lança `NotFoundException`; não chama `delete`. |
+| `deleteRejectsPatientWithRelatedConsultations` | Paciente possui consultas. | Lança `ConflictException`; não exclui. |
+| `deleteRejectsPatientWithRelatedMoods` | Paciente possui humores registrados. | Lança `ConflictException`; não exclui. |
+| `deleteRejectsPatientWithRelatedTriages` | Paciente possui triagens. | Lança `ConflictException`; não exclui. |
 | `findAllReturnsRepositoryPage` | Repositório retorna uma página para o `Pageable` pedido. | O serviço retorna a mesma página. |
 | `findByCpfReturnsPatient` | CPF existe. | Retorna a entidade correspondente. |
 | `findByCpfRejectsMissingPatient` | CPF não existe. | Lança `NotFoundException`. |
@@ -37,7 +40,7 @@ mvn clean test
 | `findByPatientCpfUsesAscendingDateAndIdSort` | Consulta de histórico crescente. | Retorna a lista do repositório e pede ordenação ascendente por `date` e `id`. |
 | `findByPatientCpfUsesDescendingDateAndIdSort` | Consulta de histórico decrescente. | Retorna a lista do repositório e pede ordenação descendente por `date` e `id`. |
 
-## `ConsultationServiceTest` — 15 casos
+## `ConsultationServiceTest` — 18 casos
 
 | Caso | Cenário e intenção | Resultado esperado |
 | --- | --- | --- |
@@ -54,10 +57,13 @@ mvn clean test
 | `rescheduleRejectsConsultationThatIsNotScheduled` | Consulta está cancelada. | Lança `ConflictException` sem consultar conflito de horário. |
 | `rescheduleRejectsMissingConsultation` | Identificador não existe. | Lança `NotFoundException`. |
 | `findScheduledByDateQueriesStartAndEndOfDateInAscendingOrder` | Busca agenda de um dia. | Retorna resultados do repositório para intervalo início do dia até início do dia seguinte, status `SCHEDULED` e ordem por horário ascendente. |
+| `findByAccountIdReturnsAllRelatedConsultationsWhenDatesAreOmitted` | Busca consultas da conta sem datas. | Consulta todas as consultas associadas à conta. |
+| `findByAccountIdConvertsDateRangeToInclusiveWholeDays` | Busca consultas com início e fim. | Converte ambas as datas em limites do dia inteiro. |
+| `findByAccountIdSupportsSingleSidedDateRange` | Busca com apenas uma data limite. | Encaminha a data fornecida e deixa o outro limite sem restrição. |
 | `findDetailsReturnsConsultation` | Consulta existe com paciente e profissional. | Retorna a entidade detalhada. |
 | `findDetailsRejectsMissingConsultation` | Consulta não existe. | Lança `NotFoundException`. |
 
-## Testes dos controllers — 12 casos
+## Testes dos controllers — 18 casos
 
 ### `PatientControllerTest` — 5 casos
 
@@ -76,12 +82,14 @@ mvn clean test
 | `logMoodAssociatesMoodWithPatientFromPath` | Registra humor com CPF no caminho. | Busca esse paciente, envia humor/comentário/entidade ao serviço e retorna `200 OK`. |
 | `findByPatientCpfReturnsMoodResponsesInRequestedDirection` | Consulta histórico em `ASC`. | Confirma existência do paciente, pede histórico crescente e retorna DTOs em `200 OK`. |
 
-### `ConsultationControllerTest` — 4 casos
+### `ConsultationControllerTest` — 6 casos
 
 | Caso | Cenário e intenção | Resultado esperado |
 | --- | --- | --- |
 | `createReturnsOkAndPassesRequestToService` | Envia paciente, profissional e data/hora. | Retorna `200 OK` e encaminha os três valores ao serviço. |
 | `findByIdReturnsConsultationDetails` | Serviço encontra consulta com paciente e profissional. | Retorna `200 OK` com nomes do paciente e profissional no DTO. |
+| `findMyConsultationsUsesAccountIdFromJwtAndMapsConsultations` | Lista sem filtros para o JWT autenticado. | Extrai o ID da conta do `sub` e mapeia as consultas. |
+| `findMyConsultationsPassesRequestedDateRange` | Lista com datas inicial e final. | Encaminha a conta e o intervalo ao serviço. |
 | `cancelReturnsNoContentAndPassesIdToService` | Cancela pelo identificador. | Retorna `204 NO_CONTENT` e chama cancelamento do serviço. |
 | `rescheduleReturnsNoContentAndPassesRequestedDateToService` | Envia novo horário. | Retorna `204 NO_CONTENT` e encaminha identificador e horário ao serviço. |
 
@@ -90,6 +98,30 @@ mvn clean test
 | Caso | Cenário e intenção | Resultado esperado |
 | --- | --- | --- |
 | `findByDateReturnsScheduledConsultationsWithPatientAndProfessionalDetails` | Consulta a agenda de um dia com um compromisso. | Retorna `200 OK`, com nome do paciente e do profissional, após chamar o serviço para a data pedida. |
+
+### `ProfessionalControllerTest` — 2 casos
+
+Verifica exclusão por ID com resposta `204 NO_CONTENT` e mapeamento da consulta de profissional por ID.
+
+### `AuthControllerTest` — 3 casos
+
+Verifica que login e renovação retornam o token de acesso e o perfil, além de encaminhar o token de renovação no cookie.
+
+## `ProfessionalServiceTest` — 3 casos
+
+Verifica exclusão sem consultas, conflito para profissional com consultas e rejeição de ID inexistente.
+
+## `AuthServiceTest` — 7 casos
+
+Verifica senha correta e incorreta, e-mail inexistente, os perfis `PATIENT`, `RECEPTIONIST` e `PROFESSIONAL`, renovação da sessão e logout.
+
+## `RefreshTokenServiceTest` — 4 casos
+
+Verifica rotação de token válido, rejeição de token expirado ou desconhecido e exclusão no logout.
+
+## `ConsultationRepositoryTest` — 7 casos de integração
+
+Usa H2 e Spring para validar o filtro por conta e intervalo, inclusão de status cancelados, detecção dos registros relacionados e exclusões seguras para pacientes e profissionais, incluindo remoção de refresh tokens.
 
 ## `RequestValidationTest` — 5 casos
 
@@ -118,6 +150,6 @@ mvn clean test
 
 ## Cobertura que não está incluída
 
-- Os testes de controller são chamadas unitárias aos métodos, não testes HTTP com `MockMvc`; portanto não verificam dispatch de rotas, conversão de parâmetros, serialização JSON nem integração real do `@Valid` com o handler genérico.
-- Não há endpoints ou serviços de triagem, CRUD de profissional, conclusão de consulta, alertas ou autenticação para testar.
-- Os métodos derivados e a consulta nativa dos repositórios não são validados por testes de integração JPA nesta suíte; as regras de serviço são verificadas com repositórios simulados.
+- Os testes de controller são chamadas unitárias aos métodos, não testes HTTP com `MockMvc`; portanto não verificam dispatch de rotas, conversão de parâmetros, serialização JSON nem integração real do `@Valid` com o handler genérico. Esses testes HTTP foram excluídos conforme solicitado.
+- Não há endpoints para criar triagens, criar ou atualizar profissionais, concluir consultas ou alertas.
+- A consulta nativa de conflito de horário e alguns métodos derivados ainda não têm testes de integração dedicados.

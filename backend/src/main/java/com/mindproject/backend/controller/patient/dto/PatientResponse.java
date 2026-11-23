@@ -11,6 +11,6 @@ public record PatientResponse(
         String address
 ) {
     public static PatientResponse fromEntity(Patient patient) {
-        return new PatientResponse(patient.getId(), patient.getCpf(), patient.getName(), patient.getPhone(), patient.getEmail(), patient.getAddress());
+        return new PatientResponse(patient.getId(), patient.getCpf(), patient.getName(), patient.getPhone(), patient.getAccount().getEmail(), patient.getAddress());
     }
 }
