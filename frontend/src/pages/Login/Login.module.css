@@ -262,6 +262,184 @@
   line-height: 1.5;
 }
 
+/* ---------- Seletor de perfil ---------- */
+.perfilField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.perfilTrigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background-color: #ffffff;
+  font-family: "Inter", sans-serif;
+  font-size: 1rem;
+  color: #111827;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.perfilTrigger:hover {
+  border-color: #d1d5db;
+}
+
+.perfilTrigger:focus-visible {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.perfilTriggerAberto {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.perfilTriggerConteudo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.perfilTriggerIcone {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+.perfilTriggerTextos {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.perfilTriggerLabel {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.perfilTriggerHint {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.perfilPlaceholder {
+  font-size: 0.9375rem;
+  color: #9ca3af;
+}
+
+.perfilChevron {
+  color: #6b7280;
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.perfilChevronAberto {
+  transform: rotate(180deg);
+  color: #16a34a;
+}
+
+.perfilOpcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background-color: #ffffff;
+  animation: perfilFade 160ms ease;
+}
+
+@keyframes perfilFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.perfilOpcao {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  border: 1.5px solid transparent;
+  border-radius: 9px;
+  background-color: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.perfilOpcao:hover {
+  background-color: #f9fafb;
+}
+
+.perfilOpcao:focus-visible {
+  outline: none;
+  border-color: #16a34a;
+}
+
+.perfilOpcaoAtiva {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.perfilOpcaoIcone {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.perfilOpcaoAtiva .perfilOpcaoIcone {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.perfilOpcaoTextos {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.perfilOpcaoLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.perfilOpcaoHint {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
 @media (max-width: 900px) {
   .page {
     grid-template-columns: 1fr;

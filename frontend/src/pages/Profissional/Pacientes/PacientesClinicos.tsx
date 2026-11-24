@@ -43,7 +43,12 @@ function dataValidaIso(iso: string): string {
 
 export function PacientesClinicos() {
   const navigate = useNavigate();
-  const { pacientes, loading: loadingPacientes } = usePacientes();
+  const {
+    pacientes,
+    loading: loadingPacientes,
+    erro: erroPacientes,
+    refresh: refreshPacientes,
+  } = usePacientes();
 
   const [humoresPorCpf, setHumoresPorCpf] = useState<Record<string, UltimoRegistro[]>>({});
   const [loadingHumores, setLoadingHumores] = useState(true);
@@ -98,7 +103,7 @@ export function PacientesClinicos() {
   useEffect(() => {
     carregarHumores();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pacientes.length]);
+  }, [pacientes]);
 
   const linhas = useMemo<LinhaPaciente[]>(() => {
     return pacientes.map((paciente) => {
@@ -160,7 +165,7 @@ export function PacientesClinicos() {
         <button
           type="button"
           className={styles.refreshButton}
-          onClick={carregarHumores}
+          onClick={() => void refreshPacientes()}
           disabled={loadingHumores || loadingPacientes}
           title="Recarregar"
         >
@@ -183,7 +188,7 @@ export function PacientesClinicos() {
               atenção imediata
             </strong>
             <p>
-              Registros de humor ruim consecutivos nos últimos {DIAS_RECENTES} dias.
+              Registros de humor ruim entre os últimos {DIAS_RECENTES} registros.
               Recomenda-se contato ativo.
             </p>
           </div>
@@ -209,7 +214,7 @@ export function PacientesClinicos() {
           <input
             type="text"
             className={styles.searchInput}
-            placeholder="Buscar por nome, CPF ou e-mail"
+            placeholder="Buscar por nome ou CPF"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
           />
@@ -243,11 +248,11 @@ export function PacientesClinicos() {
         </span>
       </div>
 
-      {erro && (
+      {(erroPacientes || erro) && (
         <div className={styles.errorBanner} role="alert">
           <AlertCircle size={16} />
-          <span>{erro}</span>
-          <button type="button" onClick={carregarHumores} className={styles.retryLink}>
+          <span>{erroPacientes || erro}</span>
+          <button type="button" onClick={() => void refreshPacientes()} className={styles.retryLink}>
             Tentar novamente
           </button>
         </div>

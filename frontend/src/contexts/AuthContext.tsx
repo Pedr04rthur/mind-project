@@ -6,17 +6,17 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { UsuarioLogado } from "../types/auth";
+import type { PerfilUsuario, UsuarioLogado } from "../types/auth";
+import { usuarioFromMe } from "../types/auth";
+import { api, setAccessToken, setOnUnauthorized } from "../services/api";
 
 const STORAGE_KEY = "mindcare:usuario";
 
 interface AuthContextValue {
   usuario: UsuarioLogado | null;
   isAutenticado: boolean;
-  entrar: (usuario: UsuarioLogado) => void;
-  sair: () => void;
-  /** Atalho: troca de perfil sem perder o estado da sessão */
-  trocarPerfil: () => void;
+  entrar: (email: string, senha: string) => Promise<PerfilUsuario>;
+  sair: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -36,29 +36,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      if (usuario) {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
-      } else {
-        sessionStorage.removeItem(STORAGE_KEY);
-      }
+      if (usuario) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
+      else sessionStorage.removeItem(STORAGE_KEY);
     } catch {
       // ignora
     }
   }, [usuario]);
 
-  const entrar = useCallback((u: UsuarioLogado) => setUsuario(u), []);
-  const sair = useCallback(() => setUsuario(null), []);
-  const trocarPerfil = useCallback(() => setUsuario(null), []);
+  useEffect(() => {
+    setOnUnauthorized(() => {
+      setUsuario(null);
+      setAccessToken(null);
+    });
+    return () => setOnUnauthorized(null);
+  }, []);
+
+  const entrar = useCallback(async (email: string, senha: string) => {
+    const auth = await api.auth.signin(email, senha);
+    setAccessToken(auth.token);
+
+    const me = await api.auth.me();
+    const novo = usuarioFromMe(me);
+
+    setUsuario(novo);
+    return novo.perfil;
+  }, []);
+
+  const sair = useCallback(async () => {
+    try {
+      await api.auth.logout();
+    } catch {
+      // ignora
+    } finally {
+      setAccessToken(null);
+      setUsuario(null);
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
-      value={{
-        usuario,
-        isAutenticado: usuario !== null,
-        entrar,
-        sair,
-        trocarPerfil,
-      }}
+      value={{ usuario, isAutenticado: usuario !== null, entrar, sair }}
     >
       {children}
     </AuthContext.Provider>
@@ -73,8 +90,7 @@ export function useAuth() {
   return ctx;
 }
 
-/** Retorna o "home" de cada perfil, usado para redirecionamento pós-login. */
-export function getHomeDoPerfil(perfil: string): string {
+export function getHomeDoPerfil(perfil: PerfilUsuario): string {
   switch (perfil) {
     case "PACIENTE":
       return "/diario";

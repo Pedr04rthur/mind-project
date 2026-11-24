@@ -138,6 +138,15 @@ export function RegistroHumor() {
               </span>
             </div>
 
+            {!cpfPaciente && (
+              <div className={styles.errorBox} role="alert">
+                <AlertCircle size={16} />
+                <span>
+                  Não foi possível identificar seu CPF na sessão. Faça login novamente.
+                </span>
+              </div>
+            )}
+
             {erro && (
               <div className={styles.errorBox} role="alert">
                 <AlertCircle size={16} />

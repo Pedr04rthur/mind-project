@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { api, ApiError } from "../services/api";
+import { useAuth } from "./AuthContext";
 import { MOCK_PROFISSIONAIS } from "../data/mockProfissionais";
 import type { Profissional } from "../types/profissional";
 
@@ -19,75 +20,139 @@ export interface ProfissionalBackend {
 }
 
 interface ProfissionaisContextValue {
-  // --- Mock (usado pelas telas antigas de cadastro) ---
   profissionais: Profissional[];
   getByCpf: (cpf: string) => Profissional | undefined;
   upsert: (profissional: Profissional) => void;
   remove: (cpf: string) => void;
 
-  // --- Backend (usado pelo agendamento) ---
   backendProfissionais: ProfissionalBackend[];
   loadingBackend: boolean;
   erroBackend: string | null;
   refreshBackend: () => Promise<void>;
 }
 
-const ProfissionaisContext = createContext<ProfissionaisContextValue | null>(null);
+const ProfissionaisContext =
+  createContext<ProfissionaisContextValue | null>(null);
 
 function loadInitial(): Profissional[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as Profissional[];
+
+    if (raw) {
+      return JSON.parse(raw) as Profissional[];
+    }
   } catch {}
+
   return MOCK_PROFISSIONAIS;
 }
 
-export function ProfissionaisProvider({ children }: { children: ReactNode }) {
-  // Mock
-  const [profissionais, setProfissionais] = useState<Profissional[]>(loadInitial);
+export function ProfissionaisProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const { usuario } = useAuth();
+
+  const perfil = usuario?.perfil;
+  const email = usuario?.emailLogin;
+
+  const [profissionais, setProfissionais] =
+    useState<Profissional[]>(loadInitial);
+
+  const [backendProfissionais, setBackendProfissionais] =
+    useState<ProfissionalBackend[]>([]);
+
+  const [loadingBackend, setLoadingBackend] = useState(false);
+
+  const [erroBackend, setErroBackend] =
+    useState<string | null>(null);
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(profissionais));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(profissionais)
+      );
     } catch {}
   }, [profissionais]);
 
   const getByCpf = (cpf: string) =>
-    profissionais.find((p) => p.cpf === decodeURIComponent(cpf));
+    profissionais.find(
+      (p) => p.cpf === decodeURIComponent(cpf)
+    );
 
   const upsert = (profissional: Profissional) => {
     setProfissionais((atual) => {
-      const existe = atual.some((p) => p.cpf === profissional.cpf);
-      if (existe) return atual.map((p) => (p.cpf === profissional.cpf ? profissional : p));
+      const existe = atual.some(
+        (p) => p.cpf === profissional.cpf
+      );
+
+      if (existe) {
+        return atual.map((p) =>
+          p.cpf === profissional.cpf
+            ? profissional
+            : p
+        );
+      }
+
       return [profissional, ...atual];
     });
   };
 
   const remove = (cpf: string) => {
-    setProfissionais((atual) => atual.filter((p) => p.cpf !== cpf));
+    setProfissionais((atual) =>
+      atual.filter((p) => p.cpf !== cpf)
+    );
   };
 
-  // Backend
-  const [backendProfissionais, setBackendProfissionais] = useState<ProfissionalBackend[]>([]);
-  const [loadingBackend, setLoadingBackend] = useState(true);
-  const [erroBackend, setErroBackend] = useState<string | null>(null);
-
   const refreshBackend = useCallback(async () => {
+    if (!email || perfil !== "RECEPCAO") {
+      setBackendProfissionais([]);
+      setLoadingBackend(false);
+      setErroBackend(null);
+      return;
+    }
+
     setLoadingBackend(true);
     setErroBackend(null);
+
     try {
       const data = await api.professionals.list();
+
+      if (!Array.isArray(data)) {
+        throw new Error(
+          "Formato inválido na resposta de profissionais."
+        );
+      }
+
       setBackendProfissionais(data);
+
+      console.log(
+        "[MindCare] Profissionais carregados:",
+        data.length
+      );
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : "Erro ao carregar profissionais";
+      const msg =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+          ? err.message
+          : "Erro ao carregar profissionais.";
+
+      setBackendProfissionais([]);
       setErroBackend(msg);
+
+      console.error(
+        "[MindCare] Erro ao carregar profissionais:",
+        err
+      );
     } finally {
       setLoadingBackend(false);
     }
-  }, []);
+  }, [email, perfil]);
 
   useEffect(() => {
-    refreshBackend();
+    void refreshBackend();
   }, [refreshBackend]);
 
   return (
@@ -110,6 +175,12 @@ export function ProfissionaisProvider({ children }: { children: ReactNode }) {
 
 export function useProfissionais() {
   const ctx = useContext(ProfissionaisContext);
-  if (!ctx) throw new Error("useProfissionais precisa estar dentro de <ProfissionaisProvider>");
+
+  if (!ctx) {
+    throw new Error(
+      "useProfissionais precisa estar dentro de <ProfissionaisProvider>"
+    );
+  }
+
   return ctx;
 }

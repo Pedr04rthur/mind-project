@@ -1,0 +1,418 @@
+.page {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 28px;
+  color: #243b35;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.titleIcon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  background: #e5f4ed;
+  color: #27815d;
+  border-radius: 15px;
+}
+
+.header h1 {
+  margin: 0 0 5px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.header p {
+  margin: 0;
+  color: #718078;
+  font-size: 14px;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 17px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.primaryButton {
+  border: 1px solid #27815d;
+  background: #27815d;
+  color: white;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: #206d4e;
+}
+
+.secondaryButton {
+  background: white;
+  color: #36594a;
+  border: 1px solid #d5e3dc;
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: #f0f7f3;
+}
+
+.dangerButton {
+  color: #b64242;
+  background: #fff5f5;
+  border: 1px solid #f0cccc;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background: #fce5e5;
+}
+
+.page button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.info {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  background: #edf8f2;
+  border: 1px solid #cde7d9;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 22px;
+  color: #286747;
+}
+
+.info svg {
+  flex-shrink: 0;
+}
+
+.info p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.card {
+  background: white;
+  border: 1px solid #e1e9e4;
+  border-radius: 14px;
+  padding: 23px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 8px rgba(35, 70, 52, 0.04);
+}
+
+.card h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 20px;
+  font-size: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.field span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #40574c;
+}
+
+.field select,
+.field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d8e3dc;
+  border-radius: 9px;
+  padding: 12px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  color: #30483c;
+  outline: none;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.field select:focus,
+.field textarea:focus {
+  border-color: #39966d;
+  box-shadow: 0 0 0 3px rgba(57, 150, 109, 0.12);
+}
+
+.consultaDados {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  padding: 16px;
+  background: #f6f9f7;
+  border-radius: 10px;
+}
+
+.consultaDados div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.consultaDados span {
+  color: #75877c;
+  font-size: 12px;
+}
+
+.consultaDados strong {
+  font-size: 14px;
+}
+
+.listagem {
+  margin-top: 28px;
+}
+
+.listagemHeader,
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.listagemHeader {
+  margin-bottom: 17px;
+}
+
+.listagemHeader h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.listagemHeader span,
+.cardHeader small {
+  color: #77877d;
+  font-size: 13px;
+}
+
+.cardHeader h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.DRAFT {
+  background: #fff4d8;
+  color: #986b14;
+}
+
+.ISSUED {
+  background: #e2f5e9;
+  color: #267549;
+}
+
+.CANCELLED {
+  background: #fce7e7;
+  color: #b44444;
+}
+
+.contentBlock {
+  margin-top: 18px;
+  background: #f7faf8;
+  padding: 15px;
+  border-radius: 9px;
+}
+
+.contentBlock strong {
+  font-size: 13px;
+  color: #3c6c52;
+}
+
+.contentBlock p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: white;
+  border: 1px dashed #d5e4db;
+  border-radius: 14px;
+  color: #819087;
+  text-align: center;
+}
+
+.empty svg {
+  color: #8ab39d;
+  margin-bottom: 10px;
+}
+
+.empty h3 {
+  color: #40594a;
+  margin: 10px 0;
+}
+
+.empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.erro,
+.sucesso {
+  border-radius: 9px;
+  padding: 13px 16px;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.erro {
+  background: #fff0f0;
+  border: 1px solid #efcccc;
+  color: #a73939;
+}
+
+.sucesso {
+  background: #eaf8ef;
+  border: 1px solid #c5e7d0;
+  color: #286d42;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(17, 35, 25, 0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  background: white;
+  width: 100%;
+  max-width: 690px;
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 23px;
+  border-bottom: 1px solid #e7eee9;
+}
+
+.modalHeader h2 {
+  margin: 0 0 7px;
+  font-size: 21px;
+}
+
+.modalHeader p {
+  margin: 0;
+  font-size: 14px;
+  color: #75877c;
+}
+
+.closeButton {
+  display: grid;
+  place-items: center;
+  border: none;
+  background: #f1f5f2;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: #456252;
+}
+
+.modalBody {
+  padding: 23px;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #e7eee9;
+  padding: 18px 23px;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 16px;
+  }
+
+  .header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .consultaDados {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 17px;
+  }
+
+  .modalBody,
+  .modalHeader,
+  .modalFooter {
+    padding: 16px;
+  }
+}

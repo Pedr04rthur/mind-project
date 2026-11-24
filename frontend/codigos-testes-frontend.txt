@@ -1,0 +1,1662 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "lucide-react": "^1.46.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "@vitest/coverage-v8": "^5.1.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "globals": "^17.12.0",
+    "jsdom": "^29.1.1",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.69.0",
+    "vite": "^8.3.0",
+    "vitest": "^5.1.1"
+  }
+}
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
+});
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}
+import type {
+  FiltrosAuditoria,
+  PaginaAuditoria,
+} from "../types/auditoria";
+
+import type { MeApiResponse } from "../types/auth";
+import type {
+  Prescricao,
+  PrescricaoRequest,
+} from "../types/prescricao";
+
+const BASE = "/api";
+
+// ---------- Token em memória ----------
+
+let accessToken: string | null = null;
+let onUnauthorized: (() => void) | null = null;
+
+export function setAccessToken(token: string | null) {
+  accessToken = token;
+}
+
+export function getAccessToken(): string | null {
+  return accessToken;
+}
+
+export function setOnUnauthorized(cb: (() => void) | null) {
+  onUnauthorized = cb;
+}
+
+// ---------- Erro ----------
+
+export class ApiError extends Error {
+  status: number;
+  code?: string;
+
+  constructor(message: string, status: number, code?: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
+interface RequestOptions extends RequestInit {
+  skipRefresh?: boolean;
+}
+
+// ---------- Fetch core ----------
+
+async function rawRequest(
+  path: string,
+  init?: RequestOptions
+): Promise<Response> {
+  const headers = new Headers(init?.headers);
+
+  if (init?.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  if (accessToken) {
+    headers.set("Authorization", `Bearer ${accessToken}`);
+  }
+
+  return fetch(`${BASE}${path}`, {
+    ...init,
+    headers,
+    credentials: "include",
+  });
+}
+
+async function parseError(res: Response): Promise<ApiError> {
+  let message = `Erro ${res.status}`;
+  let code: string | undefined;
+
+  try {
+    const body = await res.json();
+
+    if (body?.message) message = body.message;
+    if (body?.code) code = body.code;
+
+    if (!body?.message) {
+      if (res.status === 400)
+        message = "Dados inválidos.";
+      else if (res.status === 401)
+        message = "Sessão expirada. Faça login novamente.";
+      else if (res.status === 403)
+        message = "Sem permissão para esta ação.";
+      else if (res.status === 404)
+        message = "Recurso não encontrado.";
+      else if (res.status === 409)
+        message = "Conflito: recurso já existe.";
+      else if (res.status >= 500)
+        message = "Erro no servidor.";
+    }
+  } catch {
+    if (res.status === 401)
+      message = "Sessão expirada. Faça login novamente.";
+    else if (res.status >= 500)
+      message = "Erro no servidor.";
+  }
+
+  return new ApiError(message, res.status, code);
+}
+
+async function tryRefresh(): Promise<boolean> {
+  try {
+    const res = await fetch(`${BASE}/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!res.ok) return false;
+
+    const data = (await res.json()) as { token: string };
+
+    accessToken = data.token;
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function request<T>(
+  path: string,
+  init?: RequestOptions
+): Promise<T> {
+  let res = await rawRequest(path, init);
+
+  if (res.status === 401 && !init?.skipRefresh) {
+    const ok = await tryRefresh();
+
+    if (ok) {
+      res = await rawRequest(path, init);
+    } else {
+      accessToken = null;
+      onUnauthorized?.();
+    }
+  }
+
+  if (!res.ok) throw await parseError(res);
+
+  if (res.status === 204) return undefined as T;
+
+  const text = await res.text();
+
+  return text
+    ? (JSON.parse(text) as T)
+    : (undefined as T);
+}
+
+// ---------- Tipos ----------
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export interface PatientApi {
+  id: number;
+  cpf: string;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+}
+
+export interface PatientApiRequest {
+  cpf: string;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  password: string;
+}
+
+export type MoodLevelApi = "GOOD" | "BAD";
+
+export interface MoodApiRequest {
+  moodLevel: MoodLevelApi;
+  comment: string | null;
+}
+
+export interface ProfessionalApi {
+  id: number;
+  name: string;
+  specialty: string;
+}
+
+export interface AppointmentApiRequest {
+  patientCpf: string;
+  professionalId: number;
+  scheduledAt: string;
+}
+
+export interface AppointmentDetailsApi {
+  id: number;
+  scheduledAt: string;
+  status: "SCHEDULED" | "CANCELLED" | "COMPLETED";
+
+  patient: {
+    id: number;
+    cpf: string;
+    name: string;
+  };
+
+  professional: {
+    id: number;
+    name: string;
+    specialty: string;
+  };
+}
+
+export interface ScheduleItemApi {
+  consultationId: number;
+  scheduledAt: string;
+  patientId: number;
+  patientName: string;
+  professionalId: number;
+  professionalName: string;
+}
+
+export interface AuthResponseApi {
+  token: string;
+  profile: "PATIENT" | "RECEPTIONIST" | "PROFESSIONAL";
+}
+
+// ---------- Endpoints ----------
+
+export interface ConsultationByProfessionalApi {
+  professionalId: number;
+  professionalName: string;
+  specialty: string;
+  totalConsultations: number;
+}
+
+export const api = {
+  reports: {
+    consultationsByProfessional: (startDate?: string, endDate?: string) => {
+      const params = new URLSearchParams();
+
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
+
+      const query = params.toString();
+
+      return request<ConsultationByProfessionalApi[]>(
+        `/reports/consultations-by-professional${query ? `?${query}` : ""}`
+      );
+    },
+  },
+
+  // ---------- Autenticação ----------
+
+  auth: {
+    signin: (email: string, password: string) =>
+      request<AuthResponseApi>("/auth/signin", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        skipRefresh: true,
+      }),
+
+    logout: () =>
+      request<void>("/auth/logout", {
+        method: "POST",
+        skipRefresh: true,
+      }),
+
+    refresh: () =>
+      request<AuthResponseApi>("/auth/refresh", {
+        method: "POST",
+        skipRefresh: true,
+      }),
+
+    me: () =>
+      request<MeApiResponse>("/auth/me"),
+  },
+
+  // ---------- Pacientes ----------
+
+  patients: {
+    list: (page = 0, size = 100) =>
+      request<PageResponse<PatientApi>>(
+        `/patients?page=${page}&size=${size}`
+      ),
+
+    getByCpf: (cpf: string) =>
+      request<PatientApi>(`/patients/${cpf}`),
+
+    create: (data: PatientApiRequest) =>
+      request<void>("/patients", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+
+    update: (cpf: string, data: PatientApiRequest) =>
+      request<PatientApi>(`/patients/${cpf}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+
+    remove: (cpf: string) =>
+      request<void>(`/patients/${cpf}`, {
+        method: "DELETE",
+      }),
+  },
+
+  // ---------- Registros de humor ----------
+
+  mood: {
+    register: (cpf: string, data: MoodApiRequest) =>
+      request<void>(`/patients/${cpf}/moods`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+
+    list: (cpf: string, direction: "ASC" | "DESC" = "DESC") =>
+      request<
+        {
+          id: number;
+          level: MoodLevelApi;
+          date: string;
+          comment: string | null;
+        }[]
+      >(`/patients/${cpf}/moods?direction=${direction}`),
+
+    update: (cpf: string, id: number, data: MoodApiRequest) =>
+      request<void>(`/patients/${cpf}/moods/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+  },
+
+  // ---------- Profissionais ----------
+
+  professionals: {
+    list: () =>
+      request<ProfessionalApi[]>("/professionals"),
+
+    getById: (id: number) =>
+      request<ProfessionalApi>(`/professionals/${id}`),
+  },
+
+  // ---------- Consultas ----------
+
+  appointments: {
+    listMine: () =>
+      request<AppointmentDetailsApi[]>("/appointments"),
+
+    create: (data: AppointmentApiRequest) =>
+      request<void>("/appointments", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+
+    getById: (id: number) =>
+      request<AppointmentDetailsApi>(`/appointments/${id}`),
+
+    cancel: (id: number) =>
+      request<void>(`/appointments/${id}/cancel`, {
+        method: "PATCH",
+      }),
+
+    reschedule: (id: number, scheduledAt: string) =>
+      request<void>(`/appointments/${id}/reschedule`, {
+        method: "PATCH",
+        body: JSON.stringify({ scheduledAt }),
+      }),
+  },
+
+  // ---------- Prescrições ----------
+
+  prescriptions: {
+    list: (consultationId: number) =>
+      request<Prescricao[]>(
+        `/appointments/${consultationId}/prescriptions`
+      ),
+
+    getById: (
+      consultationId: number,
+      prescriptionId: number
+    ) =>
+      request<Prescricao>(
+        `/appointments/${consultationId}/prescriptions/${prescriptionId}`
+      ),
+
+    create: (
+      consultationId: number,
+      data: PrescricaoRequest
+    ) =>
+      request<Prescricao>(
+        `/appointments/${consultationId}/prescriptions`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      ),
+
+    update: (
+      consultationId: number,
+      prescriptionId: number,
+      data: PrescricaoRequest
+    ) =>
+      request<Prescricao>(
+        `/appointments/${consultationId}/prescriptions/${prescriptionId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(data),
+        }
+      ),
+
+    issue: (
+      consultationId: number,
+      prescriptionId: number
+    ) =>
+      request<void>(
+        `/appointments/${consultationId}/prescriptions/${prescriptionId}/issue`,
+        {
+          method: "POST",
+        }
+      ),
+
+    cancel: (
+      consultationId: number,
+      prescriptionId: number
+    ) =>
+      request<void>(
+        `/appointments/${consultationId}/prescriptions/${prescriptionId}`,
+        {
+          method: "DELETE",
+        }
+      ),
+  },
+
+  // ---------- Agenda ----------
+
+  schedule: {
+    byDate: (date: string) =>
+      request<ScheduleItemApi[]>(`/schedule?date=${date}`),
+  },
+};
+
+export const auditoriaApi = {
+  listar(filtros: FiltrosAuditoria = {}) {
+    const params = new URLSearchParams();
+
+    Object.entries(filtros).forEach(([chave, valor]) => {
+      if (valor !== undefined && valor !== "") {
+        params.set(chave, String(valor));
+      }
+    });
+
+    return request<PaginaAuditoria>(
+      `/audit?${params.toString()}`
+    );
+  },
+};
+import type { PatientApi, PatientApiRequest, MoodLevelApi } from "./api";
+import type { Paciente } from "../types/paciente";
+import type { HumorType } from "../types/humor";
+
+export function cpfToApi(cpf: string): string {
+  return cpf.replace(/\D/g, "");
+}
+
+export function cpfFromApi(cpf: string): string {
+  const digits = cpf.replace(/\D/g, "").padStart(11, "0").slice(0, 11);
+  return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+}
+
+export function patientFromApi(api: PatientApi): Paciente {
+  return {
+    id: api.id,
+    cpf: cpfFromApi(api.cpf),
+    nome: api.name,
+    telefone: api.phone,
+    endereco: api.address,
+    email: api.email,
+    status: "ATIVO",
+    prioridade: "BAIXA",
+  };
+}
+
+export function patientToApi(
+  paciente: Paciente,
+  senha: string
+): PatientApiRequest {
+  return {
+    cpf: cpfToApi(paciente.cpf),
+    name: paciente.nome,
+    phone: paciente.telefone,
+    email: paciente.email,
+    address: paciente.endereco,
+    password: senha,
+  };
+}
+
+const HUMOR_PARA_API: Record<HumorType, MoodLevelApi> = {
+  bom: "GOOD",
+  ruim: "BAD",
+};
+
+export function humorToApi(humor: HumorType): MoodLevelApi {
+  return HUMOR_PARA_API[humor];
+}
+/**
+ * Data local no formato YYYY-MM-DD (usa o fuso do navegador, não UTC).
+ */
+export function getDataDiaAtual(date: Date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * Hora no formato HH:mm.
+ */
+export function formatarHora(iso: string): string {
+  const d = new Date(iso);
+  const h = String(d.getHours()).padStart(2, "0");
+  const m = String(d.getMinutes()).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+/**
+ * Formato que o backend /schedule espera: DD-MM-YYYY
+ */
+export function toBackendDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-");
+  return `${day}-${month}-${year}`;
+}
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import type { PerfilUsuario, UsuarioLogado } from "../types/auth";
+import { usuarioFromMe } from "../types/auth";
+import { api, setAccessToken, setOnUnauthorized } from "../services/api";
+
+const STORAGE_KEY = "mindcare:usuario";
+
+interface AuthContextValue {
+  usuario: UsuarioLogado | null;
+  isAutenticado: boolean;
+  entrar: (email: string, senha: string) => Promise<PerfilUsuario>;
+  sair: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+function loadInitial(): UsuarioLogado | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as UsuarioLogado;
+  } catch {
+    // ignora
+  }
+  return null;
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [usuario, setUsuario] = useState<UsuarioLogado | null>(loadInitial);
+
+  useEffect(() => {
+    try {
+      if (usuario) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(usuario));
+      else sessionStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignora
+    }
+  }, [usuario]);
+
+  useEffect(() => {
+    setOnUnauthorized(() => {
+      setUsuario(null);
+      setAccessToken(null);
+    });
+    return () => setOnUnauthorized(null);
+  }, []);
+
+  const entrar = useCallback(async (email: string, senha: string) => {
+    const auth = await api.auth.signin(email, senha);
+    setAccessToken(auth.token);
+
+    const me = await api.auth.me();
+    const novo = usuarioFromMe(me);
+
+    setUsuario(novo);
+    return novo.perfil;
+  }, []);
+
+  const sair = useCallback(async () => {
+    try {
+      await api.auth.logout();
+    } catch {
+      // ignora
+    } finally {
+      setAccessToken(null);
+      setUsuario(null);
+    }
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{ usuario, isAutenticado: usuario !== null, entrar, sair }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth precisa estar dentro de <AuthProvider>");
+  }
+  return ctx;
+}
+
+export function getHomeDoPerfil(perfil: PerfilUsuario): string {
+  switch (perfil) {
+    case "PACIENTE":
+      return "/diario";
+    case "PROFISSIONAL":
+      return "/profissional/pacientes";
+    case "RECEPCAO":
+      return "/recepcao/pacientes";
+    default:
+      return "/login";
+  }
+}
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+
+import { api, ApiError } from "../services/api";
+import { useAuth } from "./AuthContext";
+
+import {
+  patientFromApi,
+  patientToApi,
+  cpfFromApi,
+  cpfToApi,
+} from "../services/adapters";
+
+import type { Paciente } from "../types/paciente";
+
+interface PacientesContextValue {
+  pacientes: Paciente[];
+  loading: boolean;
+  erro: string | null;
+  getByCpf: (cpf: string) => Paciente | undefined;
+  create: (paciente: Paciente, senha: string) => Promise<void>;
+  update: (paciente: Paciente, senhaPlaceholder?: string) => Promise<void>;
+  remove: (cpf: string) => Promise<void>;
+  refresh: () => Promise<void>;
+}
+
+const PacientesContext =
+  createContext<PacientesContextValue | null>(null);
+
+export function PacientesProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const { usuario } = useAuth();
+
+  const perfil = usuario?.perfil;
+  const email = usuario?.emailLogin;
+
+  const [pacientes, setPacientes] = useState<Paciente[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    if (!email || !perfil) {
+      setPacientes([]);
+      setLoading(false);
+      setErro(null);
+      return;
+    }
+
+    setLoading(true);
+    setErro(null);
+
+    try {
+      if (perfil === "RECEPCAO") {
+        const page = await api.patients.list(0, 200);
+
+        setPacientes(
+          page.content.map(patientFromApi)
+        );
+
+        return;
+      }
+
+      if (perfil === "PROFISSIONAL") {
+        const consultas = await api.appointments.listMine();
+
+        const pacientesUnicos = new Map<number, Paciente>();
+
+        for (const consulta of consultas) {
+          if (consulta.status === "CANCELLED") {
+            continue;
+          }
+
+          const paciente = consulta.patient;
+
+          if (pacientesUnicos.has(paciente.id)) {
+            continue;
+          }
+
+          pacientesUnicos.set(paciente.id, {
+            id: paciente.id,
+            cpf: cpfFromApi(paciente.cpf),
+            nome: paciente.name,
+            telefone: "",
+            endereco: "",
+            email: "",
+          });
+        }
+
+        setPacientes(
+          Array.from(pacientesUnicos.values()).sort(
+            (a, b) => a.nome.localeCompare(b.nome, "pt-BR")
+          )
+        );
+
+        return;
+      }
+
+      setPacientes([]);
+    } catch (err) {
+      const msg =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+          ? err.message
+          : "Erro ao carregar pacientes.";
+
+      setPacientes([]);
+      setErro(msg);
+
+      console.error(
+        "[MindCare] Erro ao carregar pacientes:",
+        err
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [email, perfil]);
+
+  useEffect(() => {
+    setPacientes([]);
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (perfil !== "PROFISSIONAL") return;
+
+    const atualizar = () => {
+      void refresh();
+    };
+
+    window.addEventListener("focus", atualizar);
+
+    const intervalo = window.setInterval(
+      atualizar,
+      30000
+    );
+
+    return () => {
+      window.removeEventListener("focus", atualizar);
+      window.clearInterval(intervalo);
+    };
+  }, [perfil, refresh]);
+
+  const getByCpf = (cpf: string) => {
+    const alvo = cpfFromApi(cpf);
+
+    return pacientes.find(
+      (p) => p.cpf === alvo
+    );
+  };
+
+  const create = async (
+    paciente: Paciente,
+    senha: string
+  ) => {
+    await api.patients.create(
+      patientToApi(paciente, senha)
+    );
+
+    await refresh();
+  };
+
+  const update = async (
+    paciente: Paciente,
+    senhaPlaceholder = "senha123"
+  ) => {
+    await api.patients.update(
+      cpfToApi(paciente.cpf),
+      patientToApi(paciente, senhaPlaceholder)
+    );
+
+    await refresh();
+  };
+
+  const remove = async (cpf: string) => {
+    await api.patients.remove(cpfToApi(cpf));
+    await refresh();
+  };
+
+  return (
+    <PacientesContext.Provider
+      value={{
+        pacientes,
+        loading,
+        erro,
+        getByCpf,
+        create,
+        update,
+        remove,
+        refresh,
+      }}
+    >
+      {children}
+    </PacientesContext.Provider>
+  );
+}
+
+export function usePacientes() {
+  const ctx = useContext(PacientesContext);
+
+  if (!ctx) {
+    throw new Error(
+      "usePacientes precisa estar dentro de <PacientesProvider>"
+    );
+  }
+
+  return ctx;
+}
+import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  User,
+  ChevronDown,
+  HeartPulse,
+  Stethoscope,
+  Users,
+} from "lucide-react";
+import mindguy from "../../assets/images/mindguy.png";
+import { useAuth, getHomeDoPerfil } from "../../contexts/AuthContext";
+import type { PerfilUsuario } from "../../types/auth";
+import { ApiError } from "../../services/api";
+import styles from "./Login.module.css";
+
+interface PerfilOpcao {
+  id: PerfilUsuario;
+  label: string;
+  hint: string;
+  icon: typeof HeartPulse;
+}
+
+const PERFIS: PerfilOpcao[] = [
+  { id: "PACIENTE", label: "Paciente", hint: "Diário de humor", icon: HeartPulse },
+  { id: "PROFISSIONAL", label: "Profissional", hint: "Painel clínico", icon: Stethoscope },
+  { id: "RECEPCAO", label: "Recepção", hint: "Gestão da clínica", icon: Users },
+];
+
+const ROTULO_PERFIL: Record<PerfilUsuario, string> = {
+  PACIENTE: "Paciente",
+  PROFISSIONAL: "Profissional",
+  RECEPCAO: "Recepção",
+};
+
+export function Login() {
+  const navigate = useNavigate();
+  const { entrar } = useAuth();
+
+  const [login, setLogin] = useState("");
+  const [senha, setSenha] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const [perfilSelecionado, setPerfilSelecionado] =
+    useState<PerfilUsuario | null>(null);
+  const [perfilAberto, setPerfilAberto] = useState(false);
+
+  const opcaoAtual = PERFIS.find((p) => p.id === perfilSelecionado) ?? null;
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErro(null);
+
+    if (!perfilSelecionado) {
+      setErro("Selecione seu perfil para continuar.");
+      return;
+    }
+    if (!login.trim() || !senha) {
+      setErro("Preencha login e senha para continuar.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const perfilReal = await entrar(login.trim(), senha);
+
+      if (perfilReal !== perfilSelecionado) {
+        setErro(
+          `Essa conta é de ${ROTULO_PERFIL[perfilReal]}, não de ${ROTULO_PERFIL[perfilSelecionado]}.`
+        );
+        return;
+      }
+
+      navigate(getHomeDoPerfil(perfilReal), { replace: true });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) setErro("Email ou senha inválidos.");
+        else setErro(err.message);
+      } else {
+        setErro("Não foi possível entrar. Tente novamente.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main className={styles.page}>
+      <section className={styles.brandPanel}>
+        <div className={styles.brandContent}>
+          <div className={styles.brandMark}>
+            <img src={mindguy} alt="MindCare" className={styles.brandLogo} />
+            <span>MindCare</span>
+          </div>
+          <h1 className={styles.brandTitle}>
+            Cuidado contínuo em saúde mental.
+          </h1>
+          <p className={styles.brandSubtitle}>
+            Acompanhe seu bem-estar, compartilhe seu diário com seu terapeuta
+            e mantenha sua jornada terapêutica em um só lugar.
+          </p>
+        </div>
+      </section>
+
+      <section className={styles.formPanel}>
+        <form className={styles.form} onSubmit={handleSubmit} noValidate>
+          <header className={styles.formHeader}>
+            <div className={styles.mobileBrand}>
+              <img
+                src={mindguy}
+                alt="MindCare"
+                className={styles.mobileBrandLogo}
+              />
+              <span>MindCare</span>
+            </div>
+            <h2 className={styles.formTitle}>Bem-vindo</h2>
+            <p className={styles.formSubtitle}>Faça o login</p>
+          </header>
+
+          <div className={styles.perfilField}>
+            <label className={styles.label}>Selecione seu perfil</label>
+
+            <button
+              type="button"
+              className={`${styles.perfilTrigger} ${
+                perfilAberto ? styles.perfilTriggerAberto : ""
+              }`}
+              onClick={() => setPerfilAberto((v) => !v)}
+              aria-expanded={perfilAberto}
+              aria-haspopup="listbox"
+            >
+              {opcaoAtual ? (
+                <span className={styles.perfilTriggerConteudo}>
+                  <span className={styles.perfilTriggerIcone}>
+                    <opcaoAtual.icon size={18} strokeWidth={2} />
+                  </span>
+                  <span className={styles.perfilTriggerTextos}>
+                    <span className={styles.perfilTriggerLabel}>
+                      {opcaoAtual.label}
+                    </span>
+                    <span className={styles.perfilTriggerHint}>
+                      {opcaoAtual.hint}
+                    </span>
+                  </span>
+                </span>
+              ) : (
+                <span className={styles.perfilPlaceholder}>
+                  Escolha uma opção
+                </span>
+              )}
+              <ChevronDown
+                size={18}
+                className={`${styles.perfilChevron} ${
+                  perfilAberto ? styles.perfilChevronAberto : ""
+                }`}
+              />
+            </button>
+
+            {perfilAberto && (
+              <div className={styles.perfilOpcoes} role="listbox">
+                {PERFIS.map((opcao) => {
+                  const Icone = opcao.icon;
+                  const ativo = perfilSelecionado === opcao.id;
+                  return (
+                    <button
+                      key={opcao.id}
+                      type="button"
+                      role="option"
+                      aria-selected={ativo}
+                      className={`${styles.perfilOpcao} ${
+                        ativo ? styles.perfilOpcaoAtiva : ""
+                      }`}
+                      onClick={() => {
+                        setPerfilSelecionado(opcao.id);
+                        setPerfilAberto(false);
+                        setErro(null);
+                      }}
+                    >
+                      <span className={styles.perfilOpcaoIcone}>
+                        <Icone size={18} strokeWidth={2} />
+                      </span>
+                      <span className={styles.perfilOpcaoTextos}>
+                        <span className={styles.perfilOpcaoLabel}>
+                          {opcao.label}
+                        </span>
+                        <span className={styles.perfilOpcaoHint}>
+                          {opcao.hint}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label htmlFor="login" className={styles.label}>
+              Email ou CPF
+            </label>
+            <div className={styles.inputWrapper}>
+              <User size={18} className={styles.inputIcon} />
+              <input
+                id="login"
+                type="text"
+                autoComplete="username"
+                className={styles.input}
+                placeholder="voce@exemplo.com"
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label htmlFor="senha" className={styles.label}>
+              Senha
+            </label>
+            <div className={styles.inputWrapper}>
+              <Lock size={18} className={styles.inputIcon} />
+              <input
+                id="senha"
+                type={mostrarSenha ? "text" : "password"}
+                autoComplete="current-password"
+                className={styles.input}
+                placeholder="Sua senha"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
+              <button
+                type="button"
+                className={styles.togglePassword}
+                onClick={() => setMostrarSenha((v) => !v)}
+                aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {mostrarSenha ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          {erro && <p className={styles.error}>{erro}</p>}
+
+          <button
+            type="submit"
+            className={styles.submitButton}
+            disabled={loading}
+          >
+            {loading ? "Entrando..." : "Entrar"}
+          </button>
+
+          <p className={styles.helper}>
+            O cadastro de novos pacientes é realizado pela recepção da clínica.
+          </p>
+        </form>
+      </section>
+    </main>
+  );
+}
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth, getHomeDoPerfil } from "../../contexts/AuthContext";
+import type { PerfilUsuario } from "../../types/auth";
+
+interface RequirePerfilProps {
+  permitidos: PerfilUsuario[];
+}
+
+export function RequirePerfil({ permitidos }: RequirePerfilProps) {
+  const { usuario } = useAuth();
+
+  if (!usuario) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!permitidos.includes(usuario.perfil)) {
+    return <Navigate to={getHomeDoPerfil(usuario.perfil)} replace />;
+  }
+
+  return <Outlet />;
+}
+import { useEffect, useState } from "react";
+
+import {
+  ShieldCheck,
+  Search,
+  RefreshCw,
+  Database,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  FileSearch,
+  Filter,
+  X,
+  Lock,
+} from "lucide-react";
+
+import { auditoriaApi } from "../../../services/api";
+
+import type {
+  FiltrosAuditoria,
+  PaginaAuditoria,
+} from "../../../types/auditoria";
+
+import styles from "./AuditoriaPage.module.css";
+
+const FILTROS_INICIAIS: FiltrosAuditoria = {
+  cpf: "",
+  tabela: "",
+  inicio: "",
+  fim: "",
+  page: 0,
+  size: 10,
+};
+
+const TABELAS: Record<string, string> = {
+  patients: "Pacientes",
+  professionals: "Profissionais",
+  moods: "Registros de humor",
+  consultations: "Consultas",
+  prescriptions: "Prescrições",
+};
+
+function formatarCPF(cpf: string | null) {
+  if (!cpf) return "—";
+
+  return cpf.replace(
+    /(\d{3})(\d{3})(\d{3})(\d{2})/,
+    "$1.$2.$3-$4"
+  );
+}
+
+function formatarData(data: string) {
+  return new Date(data).toLocaleString("pt-BR");
+}
+
+export function AuditoriaPage() {
+  const [form, setForm] =
+    useState<FiltrosAuditoria>(FILTROS_INICIAIS);
+
+  const [filtros, setFiltros] =
+    useState<FiltrosAuditoria>(FILTROS_INICIAIS);
+
+  const [dados, setDados] =
+    useState<PaginaAuditoria | null>(null);
+
+  const [loading, setLoading] = useState(true);
+
+  const [erro, setErro] =
+    useState<string | null>(null);
+
+  const [versao, setVersao] = useState(0);
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregar() {
+      setLoading(true);
+      setErro(null);
+      setDados(null);
+
+      try {
+        const resultado =
+          await auditoriaApi.listar(filtros);
+
+        if (ativo) setDados(resultado);
+
+      } catch (err) {
+        if (!ativo) return;
+
+        setErro(
+          err instanceof Error
+            ? err.message
+            : "Não foi possível consultar a auditoria."
+        );
+
+      } finally {
+        if (ativo) setLoading(false);
+      }
+    }
+
+    void carregar();
+
+    return () => {
+      ativo = false;
+    };
+  }, [filtros, versao]);
+
+  function pesquisar() {
+    if (
+      form.inicio &&
+      form.fim &&
+      form.inicio > form.fim
+    ) {
+      setErro("A data inicial deve ser anterior à final.");
+      return;
+    }
+
+    setFiltros({
+      ...form,
+      cpf: form.cpf?.replace(/\D/g, ""),
+      page: 0,
+    });
+  }
+
+  function limpar() {
+    setForm({ ...FILTROS_INICIAIS });
+    setFiltros({ ...FILTROS_INICIAIS });
+  }
+
+  function mudarPagina(page: number) {
+    setFiltros((anterior) => ({
+      ...anterior,
+      page,
+    }));
+  }
+
+  const registros = dados?.content ?? [];
+  const pagina = dados?.number ?? 0;
+  const totalPaginas = dados?.totalPages ?? 0;
+
+  return (
+    <main className={styles.page}>
+
+      <header className={styles.header}>
+        <div className={styles.heading}>
+          <div className={styles.titleIcon}>
+            <ShieldCheck size={27} />
+          </div>
+
+          <div>
+            <h1>Auditoria LGPD</h1>
+            <p>
+              Rastreabilidade das exclusões de dados do MindCare.
+            </p>
+          </div>
+        </div>
+
+        <button
+          className={styles.secondaryButton}
+          onClick={() => setVersao((v) => v + 1)}
+          disabled={loading}
+        >
+          <RefreshCw size={16} />
+          Atualizar
+        </button>
+      </header>
+
+      <div className={styles.stats}>
+
+        <article className={styles.stat}>
+          <div className={styles.statIcon}>
+            <Database size={22} />
+          </div>
+
+          <div>
+            <span>Exclusões encontradas</span>
+            <strong>{dados?.totalElements ?? "—"}</strong>
+          </div>
+        </article>
+
+        <article className={styles.stat}>
+          <div className={styles.statIcon}>
+            <FileSearch size={22} />
+          </div>
+
+          <div>
+            <span>Registros nesta página</span>
+            <strong>{dados ? registros.length : "—"}</strong>
+          </div>
+        </article>
+
+        <article className={styles.stat}>
+          <div className={styles.statIcon}>
+            <Lock size={22} />
+          </div>
+
+          <div>
+            <span>Permissão de acesso</span>
+            <strong className={styles.smallValue}>
+              Recepção
+            </strong>
+          </div>
+        </article>
+
+      </div>
+
+      <section className={styles.notice}>
+        <ShieldCheck size={22} />
+
+        <div>
+          <strong>Registro de exclusões</strong>
+          <p>
+            Os dados excluídos são registrados no backend
+            em formato JSON. Esta tela apresenta os
+            metadados necessários para rastreabilidade,
+            sem expor o conteúdo sensível dos snapshots.
+          </p>
+        </div>
+      </section>
+
+      <section className={styles.panel}>
+
+        <h2>
+          <Filter size={18} />
+          Filtros de auditoria
+        </h2>
+
+        <div className={styles.filters}>
+
+          <label>
+            CPF afetado
+
+            <input
+              placeholder="000.000.000-00"
+              value={form.cpf ?? ""}
+              maxLength={14}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  cpf: e.target.value,
+                })
+              }
+            />
+          </label>
+
+          <label>
+            Entidade
+
+            <select
+              value={form.tabela ?? ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  tabela: e.target.value,
+                })
+              }
+            >
+              <option value="">Todas</option>
+              <option value="patients">Pacientes</option>
+              <option value="professionals">
+                Profissionais
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Data inicial
+
+            <input
+              type="date"
+              value={form.inicio ?? ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  inicio: e.target.value,
+                })
+              }
+            />
+          </label>
+
+          <label>
+            Data final
+
+            <input
+              type="date"
+              value={form.fim ?? ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  fim: e.target.value,
+                })
+              }
+            />
+          </label>
+
+        </div>
+
+        <div className={styles.actions}>
+          <button
+            className={styles.secondaryButton}
+            onClick={limpar}
+          >
+            <X size={16} />
+            Limpar
+          </button>
+
+          <button
+            className={styles.primaryButton}
+            onClick={pesquisar}
+            disabled={loading}
+          >
+            <Search size={16} />
+            Pesquisar
+          </button>
+        </div>
+
+      </section>
+
+      {erro && (
+        <div className={styles.error}>
+          <AlertCircle size={19} />
+          {erro}
+        </div>
+      )}
+
+      <section className={styles.panel}>
+
+        <div className={styles.tableHeading}>
+          <h2>Histórico de exclusões</h2>
+
+          <span>
+            {dados?.totalElements ?? 0} registros
+          </span>
+        </div>
+
+        {loading ? (
+          <div className={styles.empty}>
+            <RefreshCw size={30} />
+            <p>Carregando registros...</p>
+          </div>
+        ) : registros.length === 0 ? (
+          <div className={styles.empty}>
+            <FileSearch size={42} />
+
+            <h3>Nenhum registro encontrado</h3>
+
+            <p>
+              {erro
+                ? "Não foi possível confirmar os registros."
+                : "Não existem exclusões para os filtros selecionados."}
+            </p>
+          </div>
+        ) : (
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Entidade</th>
+                  <th>Registro</th>
+                  <th>CPF afetado</th>
+                  <th>Responsável</th>
+                  <th>Data e horário</th>
+                  <th>Operação</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {registros.map((log) => (
+                  <tr key={log.id}>
+
+                    <td>#{log.id}</td>
+
+                    <td>
+                      <strong>
+                        {TABELAS[log.tabelaAfetada]
+                          ?? log.tabelaAfetada}
+                      </strong>
+                    </td>
+
+                    <td>#{log.registroId}</td>
+
+                    <td>{formatarCPF(log.cpfAfetado)}</td>
+
+                    <td>{log.responsavel}</td>
+
+                    <td>{formatarData(log.dataExclusao)}</td>
+
+                    <td>
+                      <span className={styles.badge}>
+                        Exclusão
+                      </span>
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+
+            </table>
+          </div>
+        )}
+
+        <footer className={styles.pagination}>
+
+          <span>
+            Página {totalPaginas ? pagina + 1 : 0}
+            {" de "}
+            {totalPaginas}
+          </span>
+
+          <div>
+            <button
+              className={styles.secondaryButton}
+              disabled={loading || pagina === 0}
+              onClick={() => mudarPagina(pagina - 1)}
+            >
+              <ChevronLeft size={16} />
+              Anterior
+            </button>
+
+            <button
+              className={styles.secondaryButton}
+              disabled={
+                loading || pagina + 1 >= totalPaginas
+              }
+              onClick={() => mudarPagina(pagina + 1)}
+            >
+              Próxima
+              <ChevronRight size={16} />
+            </button>
+          </div>
+
+        </footer>
+
+      </section>
+
+    </main>
+  );
+}
