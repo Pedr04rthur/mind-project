@@ -10,6 +10,7 @@ import com.mindproject.backend.repository.PatientRepository;
 import com.mindproject.backend.repository.RefreshTokenRepository;
 import com.mindproject.backend.repository.TriageRepository;
 import lombok.RequiredArgsConstructor;
+import com.mindproject.backend.service.audit.AuditService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class PatientService {
+
+    private final AuditService auditService;
 
     private final PatientRepository repository;
     private final ConsultationRepository consultationRepository;
@@ -64,6 +67,7 @@ public class PatientService {
             throw new ConflictException("Patient has related consultations, moods, or triages and cannot be deleted");
         }
         refreshTokenRepository.deleteByAccount_Id(patient.getAccount().getId());
+        auditService.registrarPaciente(patient);
         repository.delete(patient);
     }
 

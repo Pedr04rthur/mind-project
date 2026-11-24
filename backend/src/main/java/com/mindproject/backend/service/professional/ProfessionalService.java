@@ -7,6 +7,7 @@ import com.mindproject.backend.repository.ConsultationRepository;
 import com.mindproject.backend.repository.ProfessionalRepository;
 import com.mindproject.backend.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import com.mindproject.backend.service.audit.AuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ProfessionalService {
+
+    private final AuditService auditService;
 
     private final ProfessionalRepository repository;
     private final ConsultationRepository consultationRepository;
@@ -45,6 +48,7 @@ public class ProfessionalService {
         if (professional.getAccount() != null) {
             refreshTokenRepository.deleteByAccount_Id(professional.getAccount().getId());
         }
+        auditService.registrarProfissional(professional);
         repository.delete(professional);
     }
 }

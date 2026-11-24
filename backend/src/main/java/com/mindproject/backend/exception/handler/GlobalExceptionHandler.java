@@ -30,8 +30,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(exception.defaultHttpError()).body(exception.toResponse());
     }
 
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<ApplicationException.ExceptionResponse> handleResponseStatus(
+            org.springframework.web.server.ResponseStatusException exception
+    ) {
+        var response = new ApplicationException.ExceptionResponse(
+                exception.getStatusCode().value(),
+                "HTTP_ERROR",
+                exception.getReason(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(exception.getStatusCode())
+                .body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApplicationException.ExceptionResponse> handleUnexpected(Exception exception) {
+        exception.printStackTrace();
         ApplicationException.ExceptionResponse response = new ApplicationException.ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "INTERNAL_SERVER_ERROR", "Ocorreu um erro inesperado", LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
