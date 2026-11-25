@@ -6,7 +6,7 @@
 
 ## 📖 Sobre o Projeto
 
-O MindProject é uma plataforma desenvolvida para auxiliar o acompanhamento contínuo de pacientes em tratamento psicológico e psiquiátrico.
+O MindCare é uma plataforma desenvolvida para auxiliar o acompanhamento contínuo de pacientes em tratamento psicológico e psiquiátrico.
 
 A proposta do sistema é reduzir a dependência exclusiva dos relatos realizados durante as consultas, permitindo que informações importantes sobre o estado emocional do paciente sejam registradas ao longo do tempo. Dessa forma, os profissionais de saúde podem ter uma visão mais completa da evolução de cada pessoa e oferecer um acompanhamento mais preciso.
 
