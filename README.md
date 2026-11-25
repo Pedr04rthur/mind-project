@@ -1,4 +1,4 @@
-# 🧠 MindProject
+# 🧠 MindCare
 
 > Plataforma digital para acompanhamento e gestão de saúde mental, conectando pacientes e profissionais de forma simples, segura e eficiente.
 
