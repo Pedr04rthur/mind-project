@@ -1,5 +1,7 @@
 package com.mindproject.backend.service.professional;
 
+import com.mindproject.backend.service.audit.AuditService;
+
 import com.mindproject.backend.domain.entity.Professional;
 import com.mindproject.backend.exception.ConflictException;
 import com.mindproject.backend.exception.NotFoundException;
@@ -35,7 +37,7 @@ class ProfessionalServiceTest {
 
     @BeforeEach
     void setUp() {
-        professionalService = new ProfessionalService(professionalRepository, consultationRepository, refreshTokenRepository);
+        professionalService = new ProfessionalService(org.mockito.Mockito.mock(AuditService.class), professionalRepository, consultationRepository, refreshTokenRepository);
     }
 
     @Test

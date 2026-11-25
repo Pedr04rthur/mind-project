@@ -1,0 +1,420 @@
+.page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 26px 24px 48px;
+  box-sizing: border-box;
+  color: #0f172a;
+}
+
+.header,
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header {
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.heading h1 {
+  margin: 0 0 5px;
+  font-size: 26px;
+  font-weight: 750;
+}
+
+.heading p {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.titleIcon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #bbf7d0;
+  border-radius: 14px;
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.refreshButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: white;
+  color: #475569;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.refreshButton:hover {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 22px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.statIcon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+}
+
+.statCard span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.statCard strong {
+  font-size: 27px;
+  font-weight: 750;
+}
+
+.blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.red {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.nextCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 26px;
+  margin-bottom: 32px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 16px;
+}
+
+.nextIcon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  color: white;
+  background: #15803d;
+}
+
+.nextContent {
+  flex: 1;
+}
+
+.nextLabel {
+  font-size: 11px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: #15803d;
+}
+
+.nextContent h2 {
+  margin: 6px 0;
+  font-size: 21px;
+}
+
+.nextContent p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.nextMeta,
+.cardMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.nextMeta span,
+.cardMeta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.nextBadge {
+  background: #dcfce7;
+  color: #166534;
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.sectionHeader span {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #94a3b8;
+}
+
+.search input {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
+  font-size: 13px;
+}
+
+.search:focus-within {
+  border-color: #22c55e;
+}
+
+.select {
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  color: #475569;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 22px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+  transition: border-color 0.2s;
+}
+
+.card:hover {
+  border-color: #86efac;
+}
+
+.cardIcon {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: 13px;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.cardInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.reference {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.cardInfo h3 {
+  margin: 5px 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.cardInfo p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.badge {
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.SCHEDULED {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.COMPLETED {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.CANCELLED {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 230px;
+  padding: 24px;
+  background: white;
+  border: 1px dashed #cbd5e1;
+  border-radius: 15px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.empty h3 {
+  margin: 15px 0 0;
+  color: #334155;
+  font-size: 17px;
+}
+
+.empty p {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.spinning {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 18px 14px;
+  }
+
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .statCard {
+    padding: 15px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+  }
+
+  .nextCard {
+    flex-wrap: wrap;
+    padding: 18px;
+  }
+
+  .card {
+    flex-wrap: wrap;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .heading h1 {
+    font-size: 23px;
+  }
+}

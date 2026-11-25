@@ -2,10 +2,6 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth, getHomeDoPerfil } from "../../contexts/AuthContext";
 import type { PerfilUsuario } from "../../types/auth";
 
-/**
- * Exige que o usuário esteja autenticado e (opcionalmente) que o
- * perfil esteja entre os permitidos.
- */
 interface RequirePerfilProps {
   permitidos: PerfilUsuario[];
 }

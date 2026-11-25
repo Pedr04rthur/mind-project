@@ -1,0 +1,335 @@
+.page {
+  padding: 32px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  color: #1f2937;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.titleIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #dcfce7;
+  color: #15803d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header h1 {
+  font-size: 26px;
+  margin: 0;
+  color: #111827;
+}
+
+.header p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.primaryButton {
+  background: #15803d;
+  color: #fff;
+  border: 1px solid #15803d;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: #166534;
+}
+
+.secondaryButton {
+  background: #fff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.dangerButton {
+  background: #fff;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.page button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.consultaCard,
+.listagem {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.consultaCard h2,
+.listagemHeader h2 {
+  font-size: 17px;
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.field select {
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.field select:focus {
+  outline: 2px solid #86efac;
+}
+
+.consultaDados {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 18px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-top: 18px;
+}
+
+.consultaDados div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.consultaDados span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.consultaDados strong {
+  font-size: 14px;
+}
+
+.aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  padding: 18px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+
+.aviso p {
+  margin: 5px 0 0;
+  font-size: 14px;
+}
+
+.listagemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.listagemHeader h2 {
+  margin: 0;
+}
+
+.listagemHeader span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.empty {
+  padding: 56px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #9ca3af;
+}
+
+.empty h3 {
+  font-size: 16px;
+  color: #374151;
+  margin: 16px 0 6px;
+}
+
+.empty p {
+  font-size: 14px;
+  margin: 0;
+  color: #6b7280;
+}
+
+.prescricaoCard {
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.prescricaoCard:last-child {
+  margin-bottom: 0;
+}
+
+.prescricaoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.prescricaoHeader h3 {
+  margin: 0 0 5px;
+  font-size: 16px;
+}
+
+.prescricaoHeader div > span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.DRAFT {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.ISSUED {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.CANCELLED {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.medicamento {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.medicamento summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #166534;
+}
+
+.medicamento p,
+.prescricaoCard > p {
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.erro,
+.sucesso {
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.erro {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.sucesso {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .consultaDados {
+    grid-template-columns: 1fr;
+  }
+
+  .consultaCard,
+  .listagem {
+    padding: 16px;
+  }
+}

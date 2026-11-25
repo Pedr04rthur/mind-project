@@ -6,6 +6,7 @@ import {
   CalendarRange,
   Stethoscope,
   ShieldCheck,
+  BarChart3,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -15,6 +16,7 @@ import { useState } from "react";
 import styles from "./RecepcaoSidebar.module.css";
 
 const MENU_ITEMS = [
+  { to: "/recepcao/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/recepcao/pacientes", label: "Pacientes", icon: Users },
   { to: "/recepcao/triagem", label: "Triagem", icon: ClipboardCheck },
   { to: "/recepcao/agenda", label: "Agenda", icon: Calendar },

@@ -1,5 +1,7 @@
 package com.mindproject.backend.service.patient;
 
+import com.mindproject.backend.service.audit.AuditService;
+
 import com.mindproject.backend.domain.entity.Patient;
 import com.mindproject.backend.exception.BadRequestException;
 import com.mindproject.backend.exception.NotFoundException;
@@ -56,7 +58,7 @@ class PatientServiceTest {
 
     @BeforeEach
     void setUp() {
-        patientService = new PatientService(patientRepository, consultationRepository, moodRepository, triageRepository, refreshTokenRepository, passwordEncoder);
+        patientService = new PatientService(org.mockito.Mockito.mock(AuditService.class), patientRepository, consultationRepository, moodRepository, triageRepository, refreshTokenRepository, passwordEncoder);
     }
 
     @Test

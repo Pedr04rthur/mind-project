@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -34,29 +33,23 @@ public class SecurityConfig {
     @Value("${key.public}")
     private RSAPublicKey publicKey;
 
-    @Value ("${key.private}")
+    @Value("${key.private}")
     private RSAPrivateKey privateKey;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-            .csrf(csrf -> 
-                csrf.disable()
-            )
-
+            .csrf(csrf -> csrf.disable())
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-
-            .authorizeHttpRequests(auth ->
-                auth.requestMatchers("/auth/**").permitAll()
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/signin", "/auth/refresh", "/auth/logout").permitAll()
                 .anyRequest().authenticated()
             )
-
             .formLogin(FormLoginConfigurer::disable)
             .httpBasic(HttpBasicConfigurer::disable)
             .oauth2ResourceServer(conf -> conf.jwt(jwt -> jwt.decoder(jwtDecoder())))
-
             .build();
     }
 

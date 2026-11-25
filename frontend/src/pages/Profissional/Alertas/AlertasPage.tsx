@@ -79,7 +79,12 @@ function calcularNivel(ruinsRecentes: number): Nivel | null {
 
 export function AlertasPage() {
   const navigate = useNavigate();
-  const { pacientes, loading: loadingPacientes } = usePacientes();
+  const {
+    pacientes,
+    loading: loadingPacientes,
+    erro: erroPacientes,
+    refresh: refreshPacientes,
+  } = usePacientes();
   const { usuario } = useAuth();
   const { reconhecidos, isReconhecido, getReconhecido, reconhecer, reabrir } =
     useAlertasReconhecidos();
@@ -93,6 +98,7 @@ export function AlertasPage() {
 
   const carregar = async () => {
     if (pacientes.length === 0) {
+      setAlertas([]);
       setLoading(false);
       return;
     }
@@ -157,7 +163,7 @@ export function AlertasPage() {
   useEffect(() => {
     carregar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pacientes.length]);
+  }, [pacientes]);
 
   const abertos = useMemo(
     () => alertas.filter((a) => !isReconhecido(a.paciente.cpf)),
@@ -211,7 +217,7 @@ export function AlertasPage() {
         <button
           type="button"
           className={styles.refreshButton}
-          onClick={carregar}
+          onClick={() => void refreshPacientes()}
           disabled={loading || loadingPacientes}
           title="Recarregar"
         >
@@ -283,7 +289,7 @@ export function AlertasPage() {
           <input
             type="text"
             className={styles.searchInput}
-            placeholder="Buscar por nome, CPF ou e-mail"
+            placeholder="Buscar por nome ou CPF"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
           />
@@ -310,11 +316,11 @@ export function AlertasPage() {
           <RefreshCw size={24} className={styles.spinning} />
           <p>Analisando humor dos pacientes...</p>
         </div>
-      ) : erro ? (
+      ) : (erroPacientes || erro) ? (
         <div className={styles.emptyState}>
           <AlertCircle size={28} strokeWidth={1.6} />
-          <p>{erro}</p>
-          <button type="button" className={styles.retryButton} onClick={carregar}>
+          <p>{erroPacientes || erro}</p>
+          <button type="button" className={styles.retryButton} onClick={() => void refreshPacientes()}>
             Tentar novamente
           </button>
         </div>
